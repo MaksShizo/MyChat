@@ -1,4 +1,3 @@
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -8,7 +7,9 @@ plugins {
 android {
     namespace = "com.lenincompany.mychat"
     compileSdk = 35
-
+    buildFeatures {
+        viewBinding = true
+    }
     defaultConfig {
         applicationId = "com.lenincompany.mychat"
         minSdk = 26
@@ -66,7 +67,7 @@ dependencies {
     implementation(libs.moxy.androidx)
     kapt(libs.moxy.compiler)
 
-
+    implementation(libs.moshi.kotlin)
     implementation(libs.material)
     implementation(libs.rxandroid)
     implementation(libs.rxjava)
