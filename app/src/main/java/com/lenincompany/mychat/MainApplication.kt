@@ -1,0 +1,26 @@
+package com.lenincompany.mychat
+
+import android.app.Application
+import dagger.android.AndroidInjector
+import dagger.android.support.DaggerApplication
+
+
+class MainApplication : DaggerApplication(){
+
+    lateinit var appComponent: AppComponent
+
+    override fun onCreate() {
+        super.onCreate()
+        appComponent = DaggerAppComponent.builder()
+            .context(this)
+            .build()
+
+        appComponent.inject(this)
+    }
+
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
+        return DaggerAppComponent.builder()
+            .context(applicationContext)
+            .build()
+    }
+}

@@ -1,5 +1,8 @@
 [versions]
-agp = "8.5.0"
+agp = "8.5.2"
+converterGson = "2.5.0"
+dagger = "2.46.1"
+daggerAndroidProcessor = "2.35.1"
 kotlin = "1.9.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -9,9 +12,22 @@ appcompat = "1.7.0"
 material = "1.12.0"
 activity = "1.9.3"
 constraintlayout = "2.2.0"
+moxy = "2.2.2"
+picassoVersion = "2.71828"
+retrofit = "2.9.0"
+rxandroid = "3.0.2"
+rxjava = "3.1.5"
+
 
 [libraries]
+adapter-rxjava3 = { module = "com.squareup.retrofit2:adapter-rxjava3", version.ref = "retrofit" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
+dagger-android = { module = "com.google.dagger:dagger-android", version.ref = "dagger" }
+dagger-android-processor = { module = "com.google.dagger:dagger-android-processor", version.ref = "daggerAndroidProcessor" }
+dagger-android-support = { module = "com.google.dagger:dagger-android-support", version.ref = "dagger" }
+dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -19,6 +35,13 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+moxy = { module = "com.github.moxy-community:moxy", version.ref = "moxy" }
+moxy-androidx = { module = "com.github.moxy-community:moxy-androidx", version.ref = "moxy" }
+moxy-compiler = { module = "com.github.moxy-community:moxy-compiler", version.ref = "moxy" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref = "rxandroid" }
+rxjava = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava" }
+squareup-picasso = { module = "com.squareup.picasso:picasso", version.ref = "picassoVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

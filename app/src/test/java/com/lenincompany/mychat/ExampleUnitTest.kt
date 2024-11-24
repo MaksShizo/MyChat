@@ -1,4 +1,4 @@
-package com.LeninCompany.MyChat
+package com.lenincompany.mychat
 
 import org.junit.Test
 
