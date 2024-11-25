@@ -1,31 +1,27 @@
-package com.lenincompany.mychat.ui.chat
+package com.lenincompany.mychat.ui.auth
 
 import android.util.Log
 import com.lenincompany.mychat.data.DataRepository
-import com.lenincompany.mychat.ui.chats.ChatsView
+import com.lenincompany.mychat.models.LoginRequest
+import com.lenincompany.mychat.models.UserRequest
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import moxy.InjectViewState
 import moxy.MvpPresenter
-import javax.inject.Inject
 
-@InjectViewState
-class ChatPresenter @Inject constructor(
+class LoginPresenter(
     private val dataRepository: DataRepository
-) : MvpPresenter<ChatView>() {
+) : MvpPresenter<LoginView>() {
     private var call: Disposable? = null
 
-    fun getMessages(chatId: Int)
-    {
-        call = dataRepository.getMessages(chatId)
+    fun login(email: String, password: String) {
+        call = dataRepository.login(LoginRequest(email, password))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { messageResponse ->
-                    if(messageResponse.isSuccessful)
-                    {
-                        viewState.showMessage(messageResponse.body()!!)
+                    if (messageResponse.isSuccessful) {
+                        viewState.setupTokenRefresher()
                     } else {
                         Log.e("ChatsPresenter Error", messageResponse.message())
                     }
@@ -36,5 +32,4 @@ class ChatPresenter @Inject constructor(
                 }
             )
     }
-
 }

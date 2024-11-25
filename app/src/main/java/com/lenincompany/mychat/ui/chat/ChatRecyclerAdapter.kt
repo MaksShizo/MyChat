@@ -1,5 +1,6 @@
 package com.lenincompany.mychat.ui.chat
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.lenincompany.mychat.R
 import com.lenincompany.mychat.databinding.ItemChatBinding
+import com.lenincompany.mychat.databinding.ItemMessageBinding
 import com.lenincompany.mychat.models.ChatBody
 import com.lenincompany.mychat.models.Message
 
@@ -15,20 +17,18 @@ class ChatRecyclerAdapter(
     private val onChatClick: (Message) -> Unit,
 ) : RecyclerView.Adapter<ChatRecyclerAdapter.ChatViewHolder>() {
 
-    class ChatViewHolder(private val binding: ItemChatBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ChatViewHolder(private val binding: ItemMessageBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(message: Message, onChatClick: (Message) -> Unit) {
             Log.d("ChatViewHolder", "Binding chat: ${message.Content}")
             val context = itemView.context
             binding.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_app))
-            binding.nameTv.text = message.Content
-            binding.root.setOnClickListener {
-                onChatClick(message)
-            }
+            binding.userName.text = message.UserName
+            binding.messageTv.text = message.Content
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val binding = ItemChatBinding.inflate(
+        val binding = ItemMessageBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -36,6 +36,7 @@ class ChatRecyclerAdapter(
         return ChatViewHolder(binding)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(newChats: List<Message>) {
         Log.d("ChatRecyclerAdapter", "Setting new data, size: ${newChats.size}")
         data.clear()  // Очищаем текущий список данных

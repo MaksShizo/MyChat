@@ -68,7 +68,7 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
         setContentView(R.layout.activity_chat)
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        rvAdapter = ChatRecyclerAdapter(messages) { chatBody ->
+        rvAdapter = ChatRecyclerAdapter(messages) { message ->
             // Обработка кликов на сообщения, если нужно
         }
         recyclerView = findViewById(R.id.chatRecyclerView)
@@ -111,15 +111,15 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
                     ChatId = chatId,
                     UserId = userId,
                     Content = message,
-                    DateCreate = LocalDate.now().toString()
+                    DateCreate = LocalDate.now().toString(),
+                    UserName = "maksim"
                 )
                 chatWebSocket.sendMessage(Json.encodeToString(jsonMessage)) // Используем encodeToString
                 messageEditText.text.clear()
             }
         }
-    }
 
-    private fun setupRecyclerView() {
+        presenter.getMessages(chatId)
 
     }
 
@@ -135,8 +135,8 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
         return try {
             Json.decodeFromString<Message>(message)
         } catch (e: Exception) {
-            Toast.makeText(this, "Error parsing message", Toast.LENGTH_SHORT).show()
-            Message(ChatId = chatId, UserId =  userId, Content =  "Parsing error", DateCreate = LocalDate.now().toString())
+            Log.e("parsing","Error parsing message ${e.message}")
+            Message(ChatId = chatId, UserId =  userId, Content =  "Parsing error", DateCreate = LocalDate.now().toString(), UserName = "Максим")
         }
     }
 
@@ -154,5 +154,9 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
 
             else -> {false}
         }
+    }
+
+    override fun showMessage(messageResponse: List<Message>) {
+        rvAdapter.setData(messageResponse)
     }
 }

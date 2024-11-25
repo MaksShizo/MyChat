@@ -36,7 +36,15 @@ data class Message(
     val DateCreate: String,
 
     /**
+     * Имя пользователя
+     */
+    @SerializedName("UserName")
+    val UserName: String,
+
+
+    /**
      * Статус сообщения (прочитано или нет)
      */
-   // @SerializedName("MessageStatus") val messagesStatus: MessagesStatus? = null
+
+    // @SerializedName("MessageStatus") val messagesStatus: MessagesStatus? = null
 )
