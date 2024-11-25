@@ -3,19 +3,24 @@ package com.lenincompany.mychat.ui.chats
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.lenincompany.mychat.R
 import com.lenincompany.mychat.databinding.ItemChatBinding
 import com.lenincompany.mychat.models.ChatBody
 
-class ChatRecyclerAdapter(
+class ChatsRecyclerAdapter(
     private var data: MutableList<ChatBody>,
-    private val onChatClick: (ChatBody) -> Unit
-) : RecyclerView.Adapter<ChatRecyclerAdapter.ChatViewHolder>() {
+    private val onChatClick: (ChatBody) -> Unit,
+) : RecyclerView.Adapter<ChatsRecyclerAdapter.ChatViewHolder>() {
 
     class ChatViewHolder(private val binding: ItemChatBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(chat: ChatBody, onChatClick: (ChatBody) -> Unit) {
             Log.d("ChatViewHolder", "Binding chat: ${chat.name}")
+            val context = itemView.context
+            binding.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_app))
             binding.nameTv.text = chat.name
+            binding.lastMessage.text = chat.lastMessage
             binding.root.setOnClickListener {
                 onChatClick(chat)
             }

@@ -33,5 +33,11 @@ data class ChatBody (
      * Участники чата.
      */
     @SerializedName("GroupChatUsers")
-    val groupChatUsers: List<GroupChatUser> = emptyList()
+    val groupChatUsers: List<GroupChatUser> = emptyList(),
+
+    /**
+     * Последнее сообщение
+     */
+    @SerializedName("LastMessage")
+    val lastMessage: String
 )

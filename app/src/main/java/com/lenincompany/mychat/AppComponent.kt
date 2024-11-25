@@ -3,6 +3,7 @@ package com.lenincompany.mychat
 import android.content.Context
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.network.ApiService
+import com.lenincompany.mychat.ui.chat.ChatActivity
 import com.lenincompany.mychat.ui.chats.ChatsActivity
 import dagger.BindsInstance
 import dagger.Component
@@ -21,7 +22,7 @@ import javax.inject.Singleton
 interface AppComponent : AndroidInjector<MainApplication> {
 
     fun inject(activity: ChatsActivity)
-
+    fun inject(activity: ChatActivity)
     @Component.Builder
     interface Builder {
         @BindsInstance
@@ -68,4 +69,6 @@ abstract class ActivityBindingModule {
 
     @ContributesAndroidInjector
     abstract fun bindChatsActivity(): ChatsActivity
+    @ContributesAndroidInjector
+    abstract fun bindChatActivity(): ChatActivity
 }

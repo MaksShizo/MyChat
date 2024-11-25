@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("org.jetbrains.kotlin.kapt") // Подключение kapt
+    kotlin("plugin.serialization") version "1.9.10"
 }
 
 android {
@@ -66,7 +67,7 @@ dependencies {
     implementation(libs.moxy)
     implementation(libs.moxy.androidx)
     kapt(libs.moxy.compiler)
-
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.moshi.kotlin)
     implementation(libs.material)
     implementation(libs.rxandroid)

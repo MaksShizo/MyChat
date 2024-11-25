@@ -11,11 +11,11 @@ import com.lenincompany.mychat.R
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.databinding.ActivityChatsBinding
 import com.lenincompany.mychat.models.ChatBody
+import com.lenincompany.mychat.ui.chat.ChatActivity
 import dagger.android.AndroidInjection
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-import java.time.LocalDate
 import javax.inject.Inject
 
 class ChatsActivity : MvpAppCompatActivity(), ChatsView {
@@ -26,7 +26,7 @@ class ChatsActivity : MvpAppCompatActivity(), ChatsView {
     @InjectPresenter
     lateinit var presenter: ChatsPresenter
     private lateinit var binding: ActivityChatsBinding
-    private lateinit var rvAdapter: ChatRecyclerAdapter
+    private lateinit var rvAdapter: ChatsRecyclerAdapter
 
     @ProvidePresenter
     fun providePresenter() = ChatsPresenter(dataRepository)
@@ -39,7 +39,7 @@ class ChatsActivity : MvpAppCompatActivity(), ChatsView {
         setContentView(R.layout.activity_chats)
         setSupportActionBar(findViewById(R.id.toolbar))
         // Инициализируем адаптер с пустым списком
-        rvAdapter = ChatRecyclerAdapter(mutableListOf()) { chat ->
+        rvAdapter = ChatsRecyclerAdapter(mutableListOf(), ) { chat ->
             onChatClicked(chat)
         }
         // Настройка RecyclerView
@@ -55,7 +55,13 @@ class ChatsActivity : MvpAppCompatActivity(), ChatsView {
     }
 
     private fun onChatClicked(chat: ChatBody) {
-
+        startActivity(
+            ChatActivity.forIntent(
+                packageContext = this,
+                userId = 1,
+                chatId = chat.chatId
+            )
+        )
     }
 
     @SuppressLint("NotifyDataSetChanged")
