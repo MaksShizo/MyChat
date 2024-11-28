@@ -1,21 +1,18 @@
 package com.lenincompany.mychat.ui.chat
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lenincompany.mychat.R
 import com.lenincompany.mychat.data.DataRepository
-import com.lenincompany.mychat.databinding.ActivityChatsBinding
+import com.lenincompany.mychat.data.SharedPrefs
+import com.lenincompany.mychat.databinding.ActivityChatBinding
 import com.lenincompany.mychat.models.Message
-import com.lenincompany.mychat.ui.chats.ChatsRecyclerAdapter
 import dagger.android.AndroidInjection
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -25,18 +22,20 @@ import moxy.presenter.ProvidePresenter
 import java.time.LocalDate
 import javax.inject.Inject
 
+
 class ChatActivity : MvpAppCompatActivity(), ChatView {
     @Inject
     lateinit var dataRepository: DataRepository
 
+    @Inject
+    lateinit var sharedPrefs: SharedPrefs
+
     @InjectPresenter
     lateinit var presenter: ChatPresenter
-    private lateinit var binding: ActivityChatsBinding
+    private lateinit var binding: ActivityChatBinding
     private lateinit var chatWebSocket: ChatWebSocket
     @ProvidePresenter
     fun providePresenter() = ChatPresenter(dataRepository)
-
-    private lateinit var webSocket: ChatWebSocket
     private lateinit var rvAdapter: ChatRecyclerAdapter
     private var chatId = 0 // ID текущего чата
     private var userId = 0 // ID текущего чата
@@ -65,15 +64,18 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_chat)
+        binding = ActivityChatBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        rvAdapter = ChatRecyclerAdapter(messages) { message ->
-            // Обработка кликов на сообщения, если нужно
-        }
+        rvAdapter = ChatRecyclerAdapter(messages, { message -> }, sharedPrefs.getUserId())
         recyclerView = findViewById(R.id.chatRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = rvAdapter
+        recyclerView.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (bottom < oldBottom) recyclerView.smoothScrollToPosition(messages.size - 1)
+        }
+
 
         if(intent != null)
         {
@@ -102,20 +104,18 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
         )
 
         chatWebSocket.connect(chatId) // Передача chatId для фильтрации
-        val sendButton = findViewById<ImageButton>(R.id.imageButton3)
-        val messageEditText = findViewById<EditText>(R.id.editTextText)
-        sendButton.setOnClickListener {
-            val message = messageEditText.text.toString()
+        binding.imageButton3.setOnClickListener {
+            val message = binding.editTextText.text.toString()
             if (message.isNotEmpty()) {
                 val jsonMessage = Message(
                     ChatId = chatId,
                     UserId = userId,
                     Content = message,
                     DateCreate = LocalDate.now().toString(),
-                    UserName = "maksim"
+                    UserName = sharedPrefs.getUserName()!!
                 )
                 chatWebSocket.sendMessage(Json.encodeToString(jsonMessage)) // Используем encodeToString
-                messageEditText.text.clear()
+                binding.editTextText.text.clear()
             }
         }
 
@@ -128,7 +128,7 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
         val messageBody = parseMessage(message)
         messages.add(messageBody)
         rvAdapter.notifyItemInserted(messages.size - 1)
-        recyclerView.scrollToPosition(messages.size - 1)
+        recyclerView.smoothScrollToPosition(messages.size - 1)
     }
 
     private fun parseMessage(message: String): Message {
@@ -158,5 +158,6 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
 
     override fun showMessage(messageResponse: List<Message>) {
         rvAdapter.setData(messageResponse)
+        recyclerView.scrollToPosition(messages.size - 1)
     }
 }

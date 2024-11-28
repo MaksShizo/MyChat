@@ -2,7 +2,7 @@ package com.lenincompany.mychat.ui.auth
 
 import android.util.Log
 import com.lenincompany.mychat.data.DataRepository
-import com.lenincompany.mychat.models.UserRequest
+import com.lenincompany.mychat.models.UserResponse
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -15,7 +15,7 @@ class RegisterPresenter(
 
     fun register(name: String,email: String, password: String) {
         call = dataRepository.register(
-            UserRequest(
+            UserResponse(
             Email = email,
             Name = name,
             Password = password

@@ -4,4 +4,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00000000</color>
     <color name="my_light_primary">#00BCD4</color>
+    <color name="user_message_background_color">#D0E8FF</color> <!-- светлый синий -->
+    <color name="other_message_background_color">#F0F0F0</color> <!-- светлый серый -->
+    <color name="user_message_text_color">#000000</color> <!-- черный -->
+    <color name="other_message_text_color">#333333</color> <!-- темно-серый -->
 </resources>

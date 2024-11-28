@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.lenincompany.mychat.data.DataRepository
+import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.data.TokenManager
 import com.lenincompany.mychat.models.Token
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -12,7 +13,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 
 class TokenRefresher(
     private val dataRepository: DataRepository,
-    private val tokenManager: TokenManager
+    private val sharedPrefs: SharedPrefs
 ) {
     private val handler = Handler(Looper.getMainLooper())
     private var refreshIntervalMillis: Long = 15 * 60 * 1000 // 15 минут
@@ -38,9 +39,9 @@ class TokenRefresher(
     // Обновляем токен
     @SuppressLint("CheckResult")
     private fun refreshToken() {
-        val userId = tokenManager.getUserId()
-        val refreshToken = tokenManager.getRefreshToken()
-        val accessToken = tokenManager.getAccessToken()
+        val userId = sharedPrefs.getUserId()
+        val refreshToken = sharedPrefs.getRefreshToken()
+        val accessToken = sharedPrefs.getAccessToken()
 
         if (userId == -1 || refreshToken.isNullOrEmpty() || accessToken.isNullOrEmpty()) {
             Log.e("TokenRefresher", "Missing token or userId")
@@ -57,7 +58,7 @@ class TokenRefresher(
                         val newRefreshToken = response.body()!!.RefreshToken
 
                         // Сохраняем новые токены
-                        tokenManager.saveTokens(userId, newAccessToken, newRefreshToken)
+                        sharedPrefs.saveTokens(userId, newAccessToken, newRefreshToken)
                         Log.d("TokenRefresher", "Tokens updated successfully")
                     } else {
                         Log.e("TokenRefresher", "Failed to refresh token: ${response.message()}")

@@ -4,7 +4,8 @@ import com.lenincompany.mychat.models.ChatBody
 import com.lenincompany.mychat.models.Message
 import com.lenincompany.mychat.models.LoginRequest
 import com.lenincompany.mychat.models.Token
-import com.lenincompany.mychat.models.UserRequest
+import com.lenincompany.mychat.models.UserInfoResponse
+import com.lenincompany.mychat.models.UserResponse
 import io.reactivex.rxjava3.core.Single
 import retrofit2.Response
 import retrofit2.http.Body
@@ -19,8 +20,11 @@ interface ApiService {
     @GET("api/GroupChat/chat/messages/{chatId}")
     fun getMessages(@Path("chatId") id: Int): Single<Response<List<Message>>>
 
+    @GET("api/User/user/{userId}")
+    fun getUser(@Path("userId") userId: Int): Single<Response<UserInfoResponse>>
+
     @POST("api/Auth/register")
-    fun register(@Body user: UserRequest): Single<Response<Void>>
+    fun register(@Body user: UserResponse): Single<Response<Void>>
 
     @POST("api/Auth/login")
     fun login(@Body loginRequest : LoginRequest): Single<Response<Token>>

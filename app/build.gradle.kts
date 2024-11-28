@@ -59,6 +59,8 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.squareup.picasso)
 
+    implementation(libs.androidx.swiperefreshlayout)
+
     //dagger2
     implementation(libs.dagger)
     implementation(libs.dagger.android)

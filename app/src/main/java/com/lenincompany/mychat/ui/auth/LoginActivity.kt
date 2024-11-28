@@ -8,7 +8,12 @@ import android.widget.TextView
 import android.widget.Toast
 import com.lenincompany.mychat.R
 import com.lenincompany.mychat.data.DataRepository
+import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.data.TokenManager
+import com.lenincompany.mychat.databinding.ActivityChatBinding
+import com.lenincompany.mychat.databinding.ActivityLoginBinding
+import com.lenincompany.mychat.models.Token
+import com.lenincompany.mychat.models.UserInfoResponse
 import com.lenincompany.mychat.network.TokenRefresher
 import com.lenincompany.mychat.ui.chats.ChatsActivity
 import dagger.android.AndroidInjection
@@ -21,6 +26,9 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
     @Inject
     lateinit var dataRepository: DataRepository
 
+    @Inject
+    lateinit var sharedPrefs: SharedPrefs
+    lateinit var binding: ActivityLoginBinding
     @InjectPresenter
     lateinit var presenter: LoginPresenter
     @ProvidePresenter
@@ -30,15 +38,11 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
-
-        val emailEditText = findViewById<EditText>(R.id.etEmail)
-        val passwordEditText = findViewById<EditText>(R.id.etPassword)
-        val loginButton = findViewById<Button>(R.id.btnLogin)
-
-        loginButton.setOnClickListener {
-            val email = emailEditText.text.toString()
-            val password = passwordEditText.text.toString()
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.btnLogin.setOnClickListener {
+            val email = binding.etEmail.text.toString()
+            val password = binding.etPassword.text.toString()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 presenter.login(email,password)
@@ -47,19 +51,24 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
             }
         }
 
-        val registerButton = findViewById<TextView>(R.id.tvRegister)
-        registerButton.setOnClickListener {
+        binding.tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
-        val forgotPasswordButton = findViewById<TextView>(R.id.tvForgotPassword)
-        forgotPasswordButton.setOnClickListener {
+        binding.tvForgotPassword.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
     }
 
-    override fun setupTokenRefresher() {
-        TokenRefresher(dataRepository, TokenManager(this))
+    override fun saveUserInfo(userInfoResponse: UserInfoResponse) {
+        sharedPrefs.saveUser(userInfoResponse)
+    }
+
+    override fun setupTokenRefresher(token : Token) {
+        val sharedPrefs = SharedPrefs(this)
+        sharedPrefs.saveTokens(token)
+        presenter.getInfoForUser(token.UserId)
+        TokenRefresher(dataRepository, SharedPrefs(this))
         startActivity(Intent(this, ChatsActivity::class.java))
     }
 }

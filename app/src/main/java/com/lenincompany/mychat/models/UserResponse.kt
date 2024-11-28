@@ -1,10 +1,9 @@
 package com.lenincompany.mychat.models
 
-import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserRequest (
+data class UserResponse (
     /**
      * Id сообщения
      */
