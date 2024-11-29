@@ -74,7 +74,6 @@ class SettingsPresenter @Inject constructor(
             .observeOn(AndroidSchedulers.mainThread())  // Обрабатываем результат на главном потоке
             .subscribe(
                 { responseBody ->
-
                     viewState.setPhoto(responseBody.body()!!.byteStream())
                 },
                 { throwable ->

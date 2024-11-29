@@ -1,4 +1,4 @@
-package com.lenincompany.mychat.models
+package com.lenincompany.mychat.models.chat
 
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
@@ -34,13 +34,6 @@ data class Message(
      */
     @SerializedName("DateCreate")
     val DateCreate: String,
-
-    /**
-     * Имя пользователя
-     */
-    @SerializedName("UserName")
-    val UserName: String,
-
 
     /**
      * Статус сообщения (прочитано или нет)

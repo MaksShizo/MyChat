@@ -1,4 +1,4 @@
-package com.lenincompany.mychat.models
+package com.lenincompany.mychat.models.chat
 
 import com.google.gson.annotations.SerializedName
 

@@ -1,7 +1,7 @@
 package com.lenincompany.mychat.data
 
 import android.content.Context
-import com.lenincompany.mychat.models.Token
+import com.lenincompany.mychat.models.base.Token
 import com.lenincompany.mychat.models.UserInfoResponse
 import javax.inject.Inject
 

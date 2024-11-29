@@ -7,13 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.lenincompany.mychat.R
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.databinding.FragmentChatsBinding
-import com.lenincompany.mychat.models.ChatBody
+import com.lenincompany.mychat.models.chat.ChatBody
 import com.lenincompany.mychat.ui.chat.ChatActivity
 import dagger.android.support.AndroidSupportInjection
 import moxy.MvpAppCompatFragment

@@ -1,15 +1,15 @@
 package com.lenincompany.mychat.network
 
-import com.lenincompany.mychat.models.ChatBody
-import com.lenincompany.mychat.models.Message
+import com.lenincompany.mychat.models.chat.ChatBody
+import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.models.LoginRequest
-import com.lenincompany.mychat.models.MessageServer
-import com.lenincompany.mychat.models.Token
+import com.lenincompany.mychat.models.base.MessageServer
+import com.lenincompany.mychat.models.base.Token
 import com.lenincompany.mychat.models.UserInfoResponse
 import com.lenincompany.mychat.models.UserResponse
+import com.lenincompany.mychat.models.chat.ChatUsers
 import io.reactivex.rxjava3.core.Single
 import okhttp3.MultipartBody
-import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -17,8 +17,6 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
-import retrofit2.http.Streaming
-import java.io.File
 
 interface ApiService {
 
@@ -27,6 +25,9 @@ interface ApiService {
 
     @GET("api/GroupChat/chat/messages/{chatId}")
     fun getMessages(@Path("chatId") id: Int): Single<Response<List<Message>>>
+
+    @GET("api/GroupChat/chat/users/{chatId}")
+    fun getUsersInChat(@Path("chatId") id: Int): Single<Response<List<ChatUsers>>>
 
     @GET("api/User/user/{userId}")
     fun getUser(@Path("userId") userId: Int): Single<Response<UserInfoResponse>>

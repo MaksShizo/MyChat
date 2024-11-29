@@ -2,6 +2,8 @@ package com.lenincompany.mychat.ui.chat
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -12,14 +14,18 @@ import com.lenincompany.mychat.R
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.databinding.ActivityChatBinding
-import com.lenincompany.mychat.models.Message
+import com.lenincompany.mychat.models.chat.ChatUsers
+import com.lenincompany.mychat.models.chat.Message
+import com.lenincompany.mychat.models.chat.UsersPhoto
 import dagger.android.AndroidInjection
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
+import java.io.InputStream
 import java.time.LocalDate
+import java.util.Dictionary
 import javax.inject.Inject
 
 
@@ -34,17 +40,22 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
     lateinit var presenter: ChatPresenter
     private lateinit var binding: ActivityChatBinding
     private lateinit var chatWebSocket: ChatWebSocket
+
     @ProvidePresenter
     fun providePresenter() = ChatPresenter(dataRepository)
     private lateinit var rvAdapter: ChatRecyclerAdapter
     private var chatId = 0 // ID текущего чата
     private var userId = 0 // ID текущего чата
+    private var usersPhoto = mutableListOf<UsersPhoto>() // Список сообщений для адаптера
+    private var users = listOf<ChatUsers>() // Список сообщений для адаптера
     private val messages = mutableListOf<Message>() // Список сообщений для адаптера
-    private lateinit var recyclerView : RecyclerView
+    private lateinit var recyclerView: RecyclerView
+
     companion object {
 
         private const val EXTRA_USER_ID = "extra_screen_type"
         private const val EXTRA_CHAT_ID = "extra_facility_id"
+
         /**
          * Creates [Intent] for starting [ChatActivity] with extra parameter
          */
@@ -68,7 +79,8 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
         setContentView(binding.root)
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        rvAdapter = ChatRecyclerAdapter(messages, { message -> }, sharedPrefs.getUserId())
+        rvAdapter =
+            ChatRecyclerAdapter(messages, { message -> }, sharedPrefs.getUserId(), mutableListOf(), mutableListOf())
         recyclerView = findViewById(R.id.chatRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = rvAdapter
@@ -77,8 +89,7 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
         }
 
 
-        if(intent != null)
-        {
+        if (intent != null) {
             chatId = intent.getIntExtra(EXTRA_CHAT_ID, 0)
             userId = intent.getIntExtra(EXTRA_USER_ID, 0)
         }
@@ -97,7 +108,7 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
             onError = { error ->
                 runOnUiThread {
                     Toast.makeText(this, "WebSocket error: $error", Toast.LENGTH_SHORT).show()
-                    Log.e("WebSoket","WebSocket error: $error")
+                    Log.e("WebSoket", "WebSocket error: $error")
 
                 }
             }
@@ -112,15 +123,13 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
                     UserId = userId,
                     Content = message,
                     DateCreate = LocalDate.now().toString(),
-                    UserName = sharedPrefs.getUserName()!!
                 )
                 chatWebSocket.sendMessage(Json.encodeToString(jsonMessage)) // Используем encodeToString
                 binding.editTextText.text.clear()
             }
         }
-
+        presenter.getUsers(chatId)
         presenter.getMessages(chatId)
-
     }
 
     private fun handleMessage(message: String) {
@@ -135,8 +144,13 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
         return try {
             Json.decodeFromString<Message>(message)
         } catch (e: Exception) {
-            Log.e("parsing","Error parsing message ${e.message}")
-            Message(ChatId = chatId, UserId =  userId, Content =  "Parsing error", DateCreate = LocalDate.now().toString(), UserName = "Максим")
+            Log.e("parsing", "Error parsing message ${e.message}")
+            Message(
+                ChatId = chatId,
+                UserId = userId,
+                Content = "Parsing error",
+                DateCreate = LocalDate.now().toString()
+            )
         }
     }
 
@@ -152,12 +166,34 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
                 return true
             }
 
-            else -> {false}
+            else -> {
+                false
+            }
         }
     }
 
     override fun showMessage(messageResponse: List<Message>) {
-        rvAdapter.setData(messageResponse)
+        rvAdapter.setData(messageResponse, users)
         recyclerView.scrollToPosition(messages.size - 1)
+    }
+
+    override fun setUser(usersResponse: List<ChatUsers>) {
+        users = usersResponse
+        usersResponse.forEach {
+            if (it.Photo != null) {
+                presenter.downloadUserPhoto(it.UserId)
+            }
+        }
+    }
+
+    override fun savePhoto(inputStream: InputStream, userId: Int) {
+        try {
+            val byteArray = inputStream.readBytes()
+            val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+            inputStream.close()
+            rvAdapter.addUsersPhoto(UsersPhoto(userId, bitmap))
+        } catch (e: Exception) {
+            Log.e("ApiError", "Error reading photo data: ${e.message}")
+        }
     }
 }

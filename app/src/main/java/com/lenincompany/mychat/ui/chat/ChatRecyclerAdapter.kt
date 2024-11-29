@@ -9,13 +9,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lenincompany.mychat.R
 import com.lenincompany.mychat.databinding.ItemOtherMessageBinding
 import com.lenincompany.mychat.databinding.ItemUserMessageBinding
-import com.lenincompany.mychat.models.ChatBody
-import com.lenincompany.mychat.models.Message
+import com.lenincompany.mychat.models.chat.ChatUsers
+import com.lenincompany.mychat.models.chat.Message
+import com.lenincompany.mychat.models.chat.UsersPhoto
 
 class ChatRecyclerAdapter(
     private var data: MutableList<Message>,
     private val onChatClick: (Message) -> Unit,
-    private val userId: Int
+    private val userId: Int,
+    private val users: MutableList<ChatUsers>,
+    private val usersPhoto: MutableList<UsersPhoto>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -33,13 +36,18 @@ class ChatRecyclerAdapter(
     }
 
     // ViewHolder для сообщений собеседника
-    class OtherMessageViewHolder(private val binding: ItemOtherMessageBinding) : RecyclerView.ViewHolder(binding.root) {
+    class OtherMessageViewHolder(private val binding: ItemOtherMessageBinding,
+                                 private val users: List<ChatUsers>,
+                                 private val usersPhoto: MutableList<UsersPhoto>) : RecyclerView.ViewHolder(binding.root) {
         fun bind(message: Message, onChatClick: (Message) -> Unit) {
             Log.d("OtherMessageViewHolder", "Binding chat: ${message.Content}")
             val context = itemView.context
             binding.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_app))
-            binding.userName.text = message.UserName
+            binding.userName.text = users.find { it.UserId == message.UserId }!!.Name
             binding.messageTv.text = message.Content
+            val photo = usersPhoto.find { it.userId == message.UserId }
+            if(photo!=null)
+                binding.imageView.setImageBitmap(photo.bitmap)
         }
     }
 
@@ -51,17 +59,25 @@ class ChatRecyclerAdapter(
             }
             TYPE_OTHER_MESSAGE -> {
                 val binding = ItemOtherMessageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                OtherMessageViewHolder(binding)
+                OtherMessageViewHolder(binding, users, usersPhoto)
             }
             else -> throw IllegalArgumentException("Invalid view type")
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setData(newChats: List<Message>) {
+    fun setData(newChats: List<Message>, allUsers: List<ChatUsers>) {
         Log.d("ChatRecyclerAdapter", "Setting new data, size: ${newChats.size}")
+        users.clear()
+        users.addAll(allUsers)
         data.clear()  // Очищаем текущий список данных
         data.addAll(newChats)  // Добавляем новые данные
+        notifyDataSetChanged()  // Уведомляем адаптер, что данные изменились
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun addUsersPhoto(userPhoto: UsersPhoto) {
+        usersPhoto.add(userPhoto)
         notifyDataSetChanged()  // Уведомляем адаптер, что данные изменились
     }
 

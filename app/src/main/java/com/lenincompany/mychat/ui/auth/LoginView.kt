@@ -1,6 +1,6 @@
 package com.lenincompany.mychat.ui.auth
 
-import com.lenincompany.mychat.models.Token
+import com.lenincompany.mychat.models.base.Token
 import com.lenincompany.mychat.models.UserInfoResponse
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy

@@ -2,7 +2,6 @@ package com.lenincompany.mychat.ui.chat
 
 import android.util.Log
 import com.lenincompany.mychat.data.DataRepository
-import com.lenincompany.mychat.ui.main.chats.ChatsView
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -18,7 +17,7 @@ class ChatPresenter @Inject constructor(
 
     fun getMessages(chatId: Int)
     {
-        call = dataRepository.getMessages(chatId)
+        call = dataRepository.getMessagesInChat(chatId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -32,6 +31,42 @@ class ChatPresenter @Inject constructor(
                 },
                 { throwable ->
                     // Обрабатываем ошибку, например, сетевую ошибку
+                    Log.e("ApiError", "Error occurred: ${throwable.message}")
+                }
+            )
+    }
+
+    fun getUsers(chatId: Int)
+    {
+        call = dataRepository.getUsersInChat(chatId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { messageResponse ->
+                    if(messageResponse.isSuccessful)
+                    {
+                        viewState.setUser(messageResponse.body()!!)
+                    } else {
+                        Log.e("ChatsPresenter Error", messageResponse.message())
+                    }
+                },
+                { throwable ->
+                    // Обрабатываем ошибку, например, сетевую ошибку
+                    Log.e("ApiError", "Error occurred: ${throwable.message}")
+                }
+            )
+    }
+
+    fun downloadUserPhoto(userId: Int) {
+        // Отправка запроса
+        val call = dataRepository.downloadPhoto(userId)
+            .subscribeOn(Schedulers.io())  // Отправляем запрос на фоновом потоке
+            .observeOn(AndroidSchedulers.mainThread())  // Обрабатываем результат на главном потоке
+            .subscribe(
+                { responseBody ->
+                    viewState.savePhoto(responseBody.body()!!.byteStream(), userId)
+                },
+                { throwable ->
                     Log.e("ApiError", "Error occurred: ${throwable.message}")
                 }
             )

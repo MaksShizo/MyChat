@@ -7,7 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.lenincompany.mychat.R
 import com.lenincompany.mychat.databinding.ItemChatBinding
-import com.lenincompany.mychat.models.ChatBody
+import com.lenincompany.mychat.models.chat.ChatBody
 
 class ChatsRecyclerAdapter(
     private var data: MutableList<ChatBody>,

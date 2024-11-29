@@ -1,19 +1,19 @@
 package com.lenincompany.mychat.data
 
-import com.lenincompany.mychat.models.ChatBody
+import com.lenincompany.mychat.models.chat.ChatBody
 import com.lenincompany.mychat.models.LoginRequest
-import com.lenincompany.mychat.models.Message
-import com.lenincompany.mychat.models.MessageServer
-import com.lenincompany.mychat.models.Token
+import com.lenincompany.mychat.models.chat.Message
+import com.lenincompany.mychat.models.base.MessageServer
+import com.lenincompany.mychat.models.base.Token
 import com.lenincompany.mychat.models.UserInfoResponse
 import com.lenincompany.mychat.models.UserResponse
+import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.network.ApiService
 import com.lenincompany.mychat.network.ApiServiceScalar
 import io.reactivex.rxjava3.core.Single
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
-import java.io.File
 import javax.inject.Inject
 
 class DataRepository @Inject constructor(
@@ -24,8 +24,12 @@ class DataRepository @Inject constructor(
         return apiService.getChats(userId)
     }
 
-    fun getMessages(chatId: Int): Single<Response<List<Message>>> {
+    fun getMessagesInChat(chatId: Int): Single<Response<List<Message>>> {
         return apiService.getMessages(chatId)
+    }
+
+    fun getUsersInChat(chatId: Int): Single<Response<List<ChatUsers>>> {
+        return apiService.getUsersInChat(chatId)
     }
 
     fun getUser(userId: Int): Single<Response<UserInfoResponse>> {
