@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">MyChat</string>
-    <string name="message">Написать сообщение…</string>
+    <string name="activity_chat_send_message">Написать сообщение…</string>
+    <string name="nav_bottom_chats">Чаты</string>
+    <string name="nav_bottom_settings">Настройки</string>
+
+    <!-- Settings fragment -->
+    <string name="fragment_settings_name">Имя</string>м
+    <string name="fragment_settings_userid">Id</string>
+    <string name="fragment_settings_email">Email</string>
+    <string name="fragment_settings_my_profile">Мой профиль</string>
+    <string name="fragment_settings_update_image">Изменить</string>
 </resources>

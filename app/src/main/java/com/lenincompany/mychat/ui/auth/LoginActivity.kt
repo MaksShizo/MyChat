@@ -2,20 +2,14 @@ package com.lenincompany.mychat.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
-import com.lenincompany.mychat.R
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.data.SharedPrefs
-import com.lenincompany.mychat.data.TokenManager
-import com.lenincompany.mychat.databinding.ActivityChatBinding
 import com.lenincompany.mychat.databinding.ActivityLoginBinding
 import com.lenincompany.mychat.models.Token
 import com.lenincompany.mychat.models.UserInfoResponse
 import com.lenincompany.mychat.network.TokenRefresher
-import com.lenincompany.mychat.ui.chats.ChatsActivity
+import com.lenincompany.mychat.ui.main.MainActivity
 import dagger.android.AndroidInjection
 import moxy.MvpAppCompatActivity
 import moxy.presenter.InjectPresenter
@@ -69,6 +63,6 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
         sharedPrefs.saveTokens(token)
         presenter.getInfoForUser(token.UserId)
         TokenRefresher(dataRepository, SharedPrefs(this))
-        startActivity(Intent(this, ChatsActivity::class.java))
+        startActivity(Intent(this, MainActivity::class.java))
     }
 }

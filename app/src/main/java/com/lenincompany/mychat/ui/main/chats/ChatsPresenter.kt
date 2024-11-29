@@ -1,4 +1,4 @@
-package com.lenincompany.mychat.ui.chats
+package com.lenincompany.mychat.ui.main.chats
 
 import android.util.Log
 import com.lenincompany.mychat.data.DataRepository

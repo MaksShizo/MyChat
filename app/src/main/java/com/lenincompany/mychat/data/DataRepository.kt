@@ -3,16 +3,22 @@ package com.lenincompany.mychat.data
 import com.lenincompany.mychat.models.ChatBody
 import com.lenincompany.mychat.models.LoginRequest
 import com.lenincompany.mychat.models.Message
+import com.lenincompany.mychat.models.MessageServer
 import com.lenincompany.mychat.models.Token
 import com.lenincompany.mychat.models.UserInfoResponse
 import com.lenincompany.mychat.models.UserResponse
 import com.lenincompany.mychat.network.ApiService
+import com.lenincompany.mychat.network.ApiServiceScalar
 import io.reactivex.rxjava3.core.Single
+import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
+import java.io.File
 import javax.inject.Inject
 
 class DataRepository @Inject constructor(
-    val apiService: ApiService
+    val apiService: ApiService,
+    val apiServiceScalar: ApiServiceScalar
 ) {
     fun getChats(userId: Int): Single<Response<List<ChatBody>>> {
         return apiService.getChats(userId)
@@ -40,5 +46,13 @@ class DataRepository @Inject constructor(
 
     fun refresh(token: Token): Single<Response<Token>> {
         return apiService.refresh(token)
+    }
+
+    fun uploadPhoto(userId: Int, file: MultipartBody.Part): Single<MessageServer> {
+        return apiService.uploadPhoto(userId, file)
+    }
+
+    fun downloadPhoto(userId: Int): Single<Response<ResponseBody>> {
+        return apiServiceScalar.downloadPhoto(userId)
     }
 }

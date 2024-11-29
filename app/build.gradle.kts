@@ -56,11 +56,16 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(kotlin("script-runtime"))
     implementation(libs.retrofit)
+    implementation(libs.converter.scalars)
     implementation(libs.converter.gson)
     implementation(libs.squareup.picasso)
-
+    implementation(libs.okhttp)
+    implementation(libs.converter.gson.v290)
     implementation(libs.androidx.swiperefreshlayout)
-
+    implementation(libs.circleimageview)
+    implementation(libs.glide.v4142)
+    implementation(libs.logging.interceptor)// Interceptor для логирования
+    kapt(libs.compiler)
     //dagger2
     implementation(libs.dagger)
     implementation(libs.dagger.android)
