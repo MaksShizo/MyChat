@@ -5,8 +5,8 @@ import com.lenincompany.mychat.models.LoginRequest
 import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.models.base.MessageServer
 import com.lenincompany.mychat.models.base.Token
-import com.lenincompany.mychat.models.UserInfoResponse
-import com.lenincompany.mychat.models.UserResponse
+import com.lenincompany.mychat.models.user.UserInfoResponse
+import com.lenincompany.mychat.models.user.UserResponse
 import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.network.ApiService
 import com.lenincompany.mychat.network.ApiServiceScalar

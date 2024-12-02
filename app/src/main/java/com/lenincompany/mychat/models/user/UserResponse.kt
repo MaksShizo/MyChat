@@ -1,4 +1,4 @@
-package com.lenincompany.mychat.models
+package com.lenincompany.mychat.models.user
 
 import kotlinx.serialization.Serializable
 

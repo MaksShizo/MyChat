@@ -79,6 +79,7 @@ class ChatsFragment : MvpAppCompatFragment(), ChatsView {
         startActivity(
             ChatActivity.forIntent(
                 packageContext = requireContext(),
+                nameChat = chat.name,
                 userId = sharedPrefs.getUserId(),
                 chatId = chat.chatId
             )

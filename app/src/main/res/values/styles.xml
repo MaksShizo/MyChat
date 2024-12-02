@@ -12,6 +12,11 @@
         <item name="android:maxWidth">300dp</item>
     </style>
 
+    <style name="CustomToolbarStyle" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@color/my_light_primary</item>
+        <item name="android:titleTextColor">@android:color/white</item>
+        <item name="android:subtitleTextColor">@android:color/darker_gray</item>
+    </style>
     <!-- Стиль для сообщения, отправленного собеседником -->
     <style name="OtherMessageStyle">
         <item name="android:background">@drawable/other_message_background</item>
@@ -23,4 +28,6 @@
         <item name="android:paddingBottom">8dp</item>
         <item name="android:maxWidth">300dp</item>
     </style>
+
+
 </resources>

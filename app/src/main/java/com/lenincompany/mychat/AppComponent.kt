@@ -9,6 +9,7 @@ import com.lenincompany.mychat.ui.auth.RegisterActivity
 import com.lenincompany.mychat.ui.chat.ChatActivity
 import com.lenincompany.mychat.ui.main.MainActivity
 import com.lenincompany.mychat.ui.main.chats.ChatsFragment
+import com.lenincompany.mychat.ui.main.contacts.ContactsFragment
 import com.lenincompany.mychat.ui.main.settings.SettingsFragment
 import dagger.BindsInstance
 import dagger.Component
@@ -36,6 +37,7 @@ interface AppComponent : AndroidInjector<MainApplication> {
     fun inject(activity: RegisterActivity)
     fun inject(fragment: ChatsFragment)
     fun inject(fragment: SettingsFragment)
+    fun inject(fragment: ContactsFragment)
     @Component.Builder
     interface Builder {
         @BindsInstance
@@ -139,4 +141,6 @@ abstract class ActivityBindingModule {
     abstract fun bindChatsFragment(): ChatsFragment
     @ContributesAndroidInjector
     abstract fun bindSettingsFragment(): SettingsFragment
+    @ContributesAndroidInjector
+    abstract fun bindContactsFragment(): ContactsFragment
 }

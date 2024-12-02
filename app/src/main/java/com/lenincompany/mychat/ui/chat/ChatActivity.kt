@@ -1,5 +1,6 @@
 package com.lenincompany.mychat.ui.chat
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -45,7 +46,8 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
     fun providePresenter() = ChatPresenter(dataRepository)
     private lateinit var rvAdapter: ChatRecyclerAdapter
     private var chatId = 0 // ID текущего чата
-    private var userId = 0 // ID текущего чата
+    private var userId = 0 // ID пользователя
+    private var nameChat = "" // Название чата
     private var usersPhoto = mutableListOf<UsersPhoto>() // Список сообщений для адаптера
     private var users = listOf<ChatUsers>() // Список сообщений для адаптера
     private val messages = mutableListOf<Message>() // Список сообщений для адаптера
@@ -53,20 +55,22 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
 
     companion object {
 
-        private const val EXTRA_USER_ID = "extra_screen_type"
-        private const val EXTRA_CHAT_ID = "extra_facility_id"
-
+        private const val EXTRA_USER_ID = "extra_user_id"
+        private const val EXTRA_CHAT_ID = "extra_chat_id"
+        private const val EXTRA_NAME_CHAT = "extra_name_chat"
         /**
          * Creates [Intent] for starting [ChatActivity] with extra parameter
          */
         fun forIntent(
             packageContext: Context,
+            nameChat: String,
             chatId: Int,
             userId: Int,
         ): Intent {
             return Intent(packageContext, ChatActivity::class.java).apply {
                 putExtra(EXTRA_CHAT_ID, chatId)
                 putExtra(EXTRA_USER_ID, userId)
+                putExtra(EXTRA_NAME_CHAT, nameChat)
             }
         }
 
@@ -87,11 +91,16 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
         recyclerView.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             if (bottom < oldBottom) recyclerView.smoothScrollToPosition(messages.size - 1)
         }
-
-
         if (intent != null) {
             chatId = intent.getIntExtra(EXTRA_CHAT_ID, 0)
             userId = intent.getIntExtra(EXTRA_USER_ID, 0)
+            nameChat = intent.getStringExtra(EXTRA_NAME_CHAT)!!
+        }
+
+        binding.chatCustomToolbar.chatTitle.text = nameChat
+        // Добавьте обработчик клика
+        binding.chatCustomToolbar.chatTitle.setOnClickListener {
+            showChatInfoDialog()
         }
         chatWebSocket = ChatWebSocket(
             serverUrl = "ws://10.0.2.2:5093/ws",
@@ -138,6 +147,15 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
         messages.add(messageBody)
         rvAdapter.notifyItemInserted(messages.size - 1)
         recyclerView.smoothScrollToPosition(messages.size - 1)
+    }
+
+    private fun showChatInfoDialog() {
+        // Здесь вы можете показать информацию о чате
+        AlertDialog.Builder(this)
+            .setTitle("Информация о чате")
+            .setMessage("Здесь отображается информация о текущем чате.")
+            .setPositiveButton("ОК") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     private fun parseMessage(message: String): Message {

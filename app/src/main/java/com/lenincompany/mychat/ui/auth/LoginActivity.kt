@@ -7,7 +7,7 @@ import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.databinding.ActivityLoginBinding
 import com.lenincompany.mychat.models.base.Token
-import com.lenincompany.mychat.models.UserInfoResponse
+import com.lenincompany.mychat.models.user.UserInfoResponse
 import com.lenincompany.mychat.network.TokenRefresher
 import com.lenincompany.mychat.ui.main.MainActivity
 import dagger.android.AndroidInjection

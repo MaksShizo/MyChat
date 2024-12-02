@@ -8,6 +8,7 @@ import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.databinding.ActivityMainBinding
 import com.lenincompany.mychat.ui.main.chats.ChatsFragment
+import com.lenincompany.mychat.ui.main.contacts.ContactsFragment
 import com.lenincompany.mychat.ui.main.settings.SettingsFragment
 import dagger.android.AndroidInjection
 import moxy.MvpAppCompatActivity
@@ -41,7 +42,14 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             when (item.itemId) {
                 R.id.nav_chats -> {
                     binding.toolbar.isGone = false
+                    binding.titleTv.setText(R.string.nav_bottom_chats)
                     openFragment(ChatsFragment())
+                    true
+                }
+                R.id.nav_contacts -> {
+                    binding.toolbar.isGone = false
+                    binding.titleTv.setText(R.string.nav_bottom_contacts)
+                    openFragment(ContactsFragment())
                     true
                 }
                 R.id.nav_settings -> {

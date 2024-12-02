@@ -3,6 +3,7 @@
     <string name="activity_chat_send_message">Написать сообщение…</string>
     <string name="nav_bottom_chats">Чаты</string>
     <string name="nav_bottom_settings">Настройки</string>
+    <string name="nav_bottom_contacts">Контакты</string>
 
     <!-- Settings fragment -->
     <string name="fragment_settings_name">Имя</string>м

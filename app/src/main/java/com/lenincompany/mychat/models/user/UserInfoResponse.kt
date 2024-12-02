@@ -1,4 +1,4 @@
-package com.lenincompany.mychat.models
+package com.lenincompany.mychat.models.user
 
 data class UserInfoResponse (
     val UserId : Int,

@@ -2,7 +2,7 @@ package com.lenincompany.mychat.data
 
 import android.content.Context
 import com.lenincompany.mychat.models.base.Token
-import com.lenincompany.mychat.models.UserInfoResponse
+import com.lenincompany.mychat.models.user.UserInfoResponse
 import javax.inject.Inject
 
 class SharedPrefs @Inject constructor(val context: Context)

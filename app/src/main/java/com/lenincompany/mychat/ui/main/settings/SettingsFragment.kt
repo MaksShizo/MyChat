@@ -3,7 +3,6 @@ package com.lenincompany.mychat.ui.main.settings
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -14,7 +13,7 @@ import android.view.ViewGroup
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.databinding.FragmentSettingsBinding
-import com.lenincompany.mychat.models.UserInfoResponse
+import com.lenincompany.mychat.models.user.UserInfoResponse
 import dagger.android.support.AndroidSupportInjection
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
