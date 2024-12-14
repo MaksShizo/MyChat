@@ -21,7 +21,6 @@ import com.lenincompany.mychat.databinding.FragmentContactsBinding
 import com.lenincompany.mychat.models.Contact
 import com.lenincompany.mychat.ui.main.chats.ChatsRecyclerAdapter
 import com.lenincompany.mychat.ui.main.settings.SettingsFragment
-import com.lenincompany.mychat.ui.main.settings.SettingsPresenter
 import dagger.android.support.AndroidSupportInjection
 import moxy.MvpAppCompatFragment
 import moxy.presenter.ProvidePresenter

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("org.jetbrains.kotlin.kapt") // Подключение kapt
     kotlin("plugin.serialization") version "1.9.10"
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -55,12 +56,13 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(kotlin("script-runtime"))
+    //retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.scalars)
     implementation(libs.converter.gson)
+    implementation(libs.adapter.kotlin.coroutines)
     implementation(libs.squareup.picasso)
     implementation(libs.okhttp)
-    implementation(libs.converter.gson.v290)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.circleimageview)
     implementation(libs.glide.v4142)
@@ -72,14 +74,14 @@ dependencies {
     kapt(libs.dagger.compiler)
     kapt(libs.dagger.android.processor)
     implementation(libs.dagger.android.support)
-    //moxy
-    implementation(libs.moxy)
-    implementation(libs.moxy.androidx)
-    kapt(libs.moxy.compiler)
+    //hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+    //corountines
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
+
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.moshi.kotlin)
     implementation(libs.material)
-    implementation(libs.rxandroid)
-    implementation(libs.rxjava)
-    implementation(libs.adapter.rxjava3)
 }

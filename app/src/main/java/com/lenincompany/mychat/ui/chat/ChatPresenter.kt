@@ -59,7 +59,7 @@ class ChatPresenter @Inject constructor(
 
     fun downloadUserPhoto(userId: Int) {
         // Отправка запроса
-        val call = dataRepository.downloadPhoto(userId)
+        val call = dataRepository.downloadUserPhoto(userId)
             .subscribeOn(Schedulers.io())  // Отправляем запрос на фоновом потоке
             .observeOn(AndroidSchedulers.mainThread())  // Обрабатываем результат на главном потоке
             .subscribe(

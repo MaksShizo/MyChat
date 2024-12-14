@@ -10,7 +10,6 @@ import com.lenincompany.mychat.models.user.UserResponse
 import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.network.ApiService
 import com.lenincompany.mychat.network.ApiServiceScalar
-import io.reactivex.rxjava3.core.Single
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -20,43 +19,43 @@ class DataRepository @Inject constructor(
     val apiService: ApiService,
     val apiServiceScalar: ApiServiceScalar
 ) {
-    fun getChats(userId: Int): Single<Response<List<ChatBody>>> {
+    suspend fun getChats(userId: Int): Response<List<ChatBody>> {
         return apiService.getChats(userId)
     }
 
-    fun getMessagesInChat(chatId: Int): Single<Response<List<Message>>> {
+    suspend fun getMessagesInChat(chatId: Int): Response<List<Message>> {
         return apiService.getMessages(chatId)
     }
 
-    fun getUsersInChat(chatId: Int): Single<Response<List<ChatUsers>>> {
+    suspend fun getUsersInChat(chatId: Int): Response<List<ChatUsers>> {
         return apiService.getUsersInChat(chatId)
     }
 
-    fun getUser(userId: Int): Single<Response<UserInfoResponse>> {
+    suspend fun getUser(userId: Int):  Response<UserInfoResponse> {
         return apiService.getUser(userId)
     }
 
-    fun register(user: UserResponse): Single<Response<Void>> {
+    suspend fun register(user: UserResponse): Response<Void> {
         return apiService.register(user)
     }
 
-    fun login(loginRequest: LoginRequest): Single<Response<Token>> {
+    suspend fun login(loginRequest: LoginRequest): Response<Token> {
         return apiService.login(loginRequest)
     }
 
-    fun resetPassword(email: String): Single<Response<Void>> {
+    suspend fun resetPassword(email: String): Response<Void> {
         return apiService.resetPassword(email)
     }
 
-    fun refresh(token: Token): Single<Response<Token>> {
+    suspend fun refresh(token: Token): Response<Token> {
         return apiService.refresh(token)
     }
 
-    fun uploadPhoto(userId: Int, file: MultipartBody.Part): Single<MessageServer> {
+    suspend fun uploadUserPhoto(userId: Int, file: MultipartBody.Part): MessageServer {
         return apiService.uploadPhoto(userId, file)
     }
 
-    fun downloadPhoto(userId: Int): Single<Response<ResponseBody>> {
+    suspend fun downloadUserPhoto(userId: Int): Response<ResponseBody> {
         return apiServiceScalar.downloadPhoto(userId)
     }
 }

@@ -1,7 +1,6 @@
 package com.lenincompany.mychat.ui.main.settings
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -10,41 +9,27 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.lenincompany.mychat.data.DataRepository
-import com.lenincompany.mychat.data.SharedPrefs
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.lenincompany.mychat.databinding.FragmentSettingsBinding
 import com.lenincompany.mychat.models.user.UserInfoResponse
-import dagger.android.support.AndroidSupportInjection
-import moxy.MvpAppCompatFragment
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import javax.inject.Inject
 
+@AndroidEntryPoint
+class SettingsFragment : Fragment() {
 
-class SettingsFragment: MvpAppCompatFragment(), SettingsView {
-    @Inject
-    lateinit var dataRepository: DataRepository
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
-    @Inject
-    lateinit var sharedPrefs: SharedPrefs
-
-    @InjectPresenter
-    lateinit var presenter: SettingsPresenter
     private lateinit var binding: FragmentSettingsBinding
-
-    @ProvidePresenter
-    fun providePresenter() = SettingsPresenter(dataRepository)
 
     companion object {
         const val PICK_IMAGE_REQUEST_CODE = 1001
         internal const val ARG_TYPE = "arg_type"
-        /**
-         * Returns created [WorksFragment] with given filter fragmentType
-         */
+
         fun newInstance(type: String): SettingsFragment {
             val args = Bundle()
             args.putString(ARG_TYPE, type)
@@ -52,11 +37,6 @@ class SettingsFragment: MvpAppCompatFragment(), SettingsView {
                 arguments = args
             }
         }
-    }
-
-    override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
     }
 
     override fun onCreateView(
@@ -70,22 +50,40 @@ class SettingsFragment: MvpAppCompatFragment(), SettingsView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter.downloadUserPhoto(sharedPrefs.getUserId())
-        if(sharedPrefs.getEmail() == null || sharedPrefs.getUserName() == null)
-            presenter.getInfoForUser(sharedPrefs.getUserId())
-        else
-        {
-            binding.nameTv.text = sharedPrefs.getUserName()
-            binding.emailTv.text = sharedPrefs.getEmail()
-            binding.useridTv.text = sharedPrefs.getUserId().toString()
+
+        // Наблюдение за состояниями LiveData
+        setupObservers()
+
+        // Загрузка фото пользователя
+        settingsViewModel.downloadUserPhoto()
+
+        // Загрузка информации о пользователе
+        if (settingsViewModel.isUserInfoAvailable()) {
+            populateUserInfo()
+        } else {
+            settingsViewModel.fetchUserInfo()
         }
 
+        // Кнопка обновления фото
         binding.updateImage.setOnClickListener {
             val photoPickerIntent = Intent(Intent.ACTION_PICK)
             photoPickerIntent.type = "image/*"
-            startActivityForResult(photoPickerIntent, PICK_IMAGE_REQUEST_CODE) // Укажите REQUEST_CODE
+            startActivityForResult(photoPickerIntent, PICK_IMAGE_REQUEST_CODE)
+        }
+    }
+
+    private fun setupObservers() {
+        settingsViewModel.userInfo.observe(viewLifecycleOwner) { userInfo ->
+            setInfoOnActivity(userInfo)
         }
 
+        settingsViewModel.userPhoto.observe(viewLifecycleOwner) { inputStream ->
+            setPhoto(inputStream)
+        }
+
+        settingsViewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
+            Log.e("SettingsFragment", "Error: $errorMessage")
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -94,15 +92,18 @@ class SettingsFragment: MvpAppCompatFragment(), SettingsView {
         if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
             val selectedImageUri: Uri? = data.data
             if (selectedImageUri != null) {
-                presenter.uploadUserPhoto(requireContext(),sharedPrefs.getUserId(),getDriveFilePath(selectedImageUri))
+                val file = getDriveFilePath(selectedImageUri)
+                if (file != null) {
+                    settingsViewModel.uploadUserPhoto(file)
+                }
             }
         }
     }
 
-    fun getDriveFilePath(uri: Uri): File?{
-        val file = File(requireContext().getCacheDir(), uri.lastPathSegment!!)
+    private fun getDriveFilePath(uri: Uri): File? {
+        val file = File(requireContext().cacheDir, uri.lastPathSegment!!)
         try {
-            val instream: InputStream = requireContext().getContentResolver().openInputStream(uri)!!
+            val instream: InputStream = requireContext().contentResolver.openInputStream(uri)!!
             val output = FileOutputStream(file)
             val buffer = ByteArray(1024)
             var size: Int
@@ -113,27 +114,31 @@ class SettingsFragment: MvpAppCompatFragment(), SettingsView {
             output.close()
             return file
         } catch (e: IOException) {
-            Log.d("TAG1", "e: ${e}")
+            Log.d("SettingsFragment", "Error creating file: ${e}")
             return null
         }
     }
 
-    override fun setInfoOnActivity(response: UserInfoResponse)
-    {
+    private fun populateUserInfo() {
+        binding.nameTv.text = settingsViewModel.getUserName()
+        binding.emailTv.text = settingsViewModel.getUserEmail()
+        binding.useridTv.text = settingsViewModel.getUserId().toString()
+    }
+
+    private fun setInfoOnActivity(response: UserInfoResponse) {
         binding.nameTv.text = response.Name
         binding.emailTv.text = response.Email
         binding.useridTv.text = response.UserId.toString()
     }
 
-    override fun setPhoto(inputStream: InputStream) {
+    private fun setPhoto(inputStream: InputStream) {
         try {
             val byteArray = inputStream.readBytes()
             val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
             inputStream.close()
             binding.imageView2.setImageBitmap(bitmap)
         } catch (e: Exception) {
-            Log.e("ApiError", "Error reading photo data: ${e.message}")
+            Log.e("SettingsFragment", "Error reading photo data: ${e.message}")
         }
     }
-
 }

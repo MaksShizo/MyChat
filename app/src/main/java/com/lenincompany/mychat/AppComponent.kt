@@ -21,7 +21,6 @@ import dagger.android.ContributesAndroidInjector
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import javax.inject.Named
@@ -89,7 +88,6 @@ class NetworkModule {
                 .baseUrl(BASE_URL)
                 .client(okHttpClient) // Используем клиент с логированием
                 .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .build()
         }
 
@@ -104,7 +102,6 @@ class NetworkModule {
                 .baseUrl(BASE_URL)
                 .client(okHttpClient) // Используем клиент с логированием
                 .addConverterFactory(ScalarsConverterFactory.create())
-                .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .build()
         }
 
