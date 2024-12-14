@@ -33,5 +33,6 @@ class ChatsPresenter @Inject constructor(
                     Log.e("ApiError", "Error occurred: ${throwable.message}")
                 }
             )
+
     }
 }

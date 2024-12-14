@@ -7,6 +7,7 @@ import com.lenincompany.mychat.network.ApiServiceScalar
 import com.lenincompany.mychat.ui.auth.LoginActivity
 import com.lenincompany.mychat.ui.auth.RegisterActivity
 import com.lenincompany.mychat.ui.chat.ChatActivity
+import com.lenincompany.mychat.ui.chat.editChat.EditChatActivity
 import com.lenincompany.mychat.ui.main.MainActivity
 import com.lenincompany.mychat.ui.main.chats.ChatsFragment
 import com.lenincompany.mychat.ui.main.contacts.ContactsFragment
@@ -34,6 +35,7 @@ interface AppComponent : AndroidInjector<MainApplication> {
     fun inject(activity: MainActivity)
     fun inject(activity: ChatActivity)
     fun inject(activity: LoginActivity)
+    fun inject(activity: EditChatActivity)
     fun inject(activity: RegisterActivity)
     fun inject(fragment: ChatsFragment)
     fun inject(fragment: SettingsFragment)
@@ -137,6 +139,8 @@ abstract class ActivityBindingModule {
     abstract fun bindLoginActivity(): LoginActivity
     @ContributesAndroidInjector
     abstract fun bindRegisterActivity(): RegisterActivity
+    @ContributesAndroidInjector
+    abstract fun bindEditChatActivity(): EditChatActivity
     @ContributesAndroidInjector
     abstract fun bindChatsFragment(): ChatsFragment
     @ContributesAndroidInjector

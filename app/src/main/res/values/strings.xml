@@ -11,4 +11,8 @@
     <string name="fragment_settings_email">Email</string>
     <string name="fragment_settings_my_profile">Мой профиль</string>
     <string name="fragment_settings_update_image">Изменить</string>
+
+
+    <!-- ChatEdit activity -->
+    <string name="activity_chat_edit_activity">Добавить пользователя</string>
 </resources>
