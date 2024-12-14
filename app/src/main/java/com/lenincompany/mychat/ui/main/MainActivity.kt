@@ -1,6 +1,7 @@
 package com.lenincompany.mychat.ui.main
 
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
 import androidx.fragment.app.Fragment
 import com.lenincompany.mychat.R
@@ -10,13 +11,11 @@ import com.lenincompany.mychat.databinding.ActivityMainBinding
 import com.lenincompany.mychat.ui.main.chats.ChatsFragment
 import com.lenincompany.mychat.ui.main.contacts.ContactsFragment
 import com.lenincompany.mychat.ui.main.settings.SettingsFragment
-import dagger.android.AndroidInjection
-import moxy.MvpAppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf.Visibility
 
-class MainActivity : MvpAppCompatActivity(), MainView {
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var dataRepository: DataRepository
@@ -27,7 +26,6 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)

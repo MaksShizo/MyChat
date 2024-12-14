@@ -3,47 +3,37 @@ package com.lenincompany.mychat.ui.chat
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lenincompany.mychat.R
-import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.databinding.ActivityChatBinding
 import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.models.chat.UsersPhoto
-import dagger.android.AndroidInjection
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import moxy.MvpAppCompatActivity
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
 import java.io.InputStream
 import java.time.LocalDate
-import java.util.Dictionary
 import javax.inject.Inject
 
+@AndroidEntryPoint
+class ChatActivity : AppCompatActivity() {
 
-class ChatActivity : MvpAppCompatActivity(), ChatView {
-    @Inject
-    lateinit var dataRepository: DataRepository
-
+    private val chatViewModel: ChatViewModel by viewModels()
     @Inject
     lateinit var sharedPrefs: SharedPrefs
 
-    @InjectPresenter
-    lateinit var presenter: ChatPresenter
     private lateinit var binding: ActivityChatBinding
     private lateinit var chatWebSocket: ChatWebSocket
-
-    @ProvidePresenter
-    fun providePresenter() = ChatPresenter(dataRepository)
     private lateinit var rvAdapter: ChatRecyclerAdapter
     private var chatId = 0 // ID текущего чата
     private var userId = 0 // ID пользователя
@@ -77,9 +67,9 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
+        setupObservers()
         setContentView(binding.root)
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -137,9 +127,30 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
                 binding.editTextText.text.clear()
             }
         }
-        presenter.getUsers(chatId)
-        presenter.getMessages(chatId)
+        chatViewModel.getUsers(chatId)
+        chatViewModel.getMessages(chatId)
     }
+
+    private fun setupObservers() {
+        chatViewModel.chat.observe(this) { chat ->
+            showMessage(chat)
+        }
+
+        chatViewModel.users.observe(this) { users ->
+            setUser(users)
+        }
+
+        chatViewModel.usersPhoto.observe(this) { usersPhoto ->
+            savePhoto(usersPhoto.first.byteStream(),usersPhoto.second )
+            //TODO Переделать
+        }
+
+
+        chatViewModel.errorMessage.observe(this) { errorMessage ->
+            Log.e("ChatsFragment", "Error: $errorMessage")
+        }
+    }
+
 
     private fun handleMessage(message: String) {
         // Преобразование JSON в объект и добавление в список
@@ -190,21 +201,21 @@ class ChatActivity : MvpAppCompatActivity(), ChatView {
         }
     }
 
-    override fun showMessage(messageResponse: List<Message>) {
+    fun showMessage(messageResponse: List<Message>) {
         rvAdapter.setData(messageResponse, users)
         recyclerView.scrollToPosition(messages.size - 1)
     }
 
-    override fun setUser(usersResponse: List<ChatUsers>) {
+    fun setUser(usersResponse: List<ChatUsers>) {
         users = usersResponse
         usersResponse.forEach {
             if (it.Photo != null) {
-                presenter.downloadUserPhoto(it.UserId)
+                chatViewModel.downloadUserPhoto(it.UserId)
             }
         }
     }
 
-    override fun savePhoto(inputStream: InputStream, userId: Int) {
+    fun savePhoto(inputStream: InputStream, userId: Int) {
         try {
             val byteArray = inputStream.readBytes()
             val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)

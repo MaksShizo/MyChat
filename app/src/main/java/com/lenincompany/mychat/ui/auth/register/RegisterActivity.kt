@@ -1,31 +1,26 @@
-package com.lenincompany.mychat.ui.auth
+package com.lenincompany.mychat.ui.auth.register
 
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
+import android.util.Log
 import android.widget.Toast
-import com.lenincompany.mychat.R
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.databinding.ActivityRegisterBinding
-import dagger.android.AndroidInjection
-import moxy.MvpAppCompatActivity
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-class RegisterActivity : MvpAppCompatActivity(), RegisterView {
+@AndroidEntryPoint
+class RegisterActivity : AppCompatActivity() {
     @Inject
     lateinit var dataRepository: DataRepository
+    private val registerViewModel: RegisterViewModel by viewModels()
     private lateinit var binding: ActivityRegisterBinding
-    @InjectPresenter
-    lateinit var presenter: RegisterPresenter
-    @ProvidePresenter
-    fun providePresenter() = RegisterPresenter(dataRepository)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
+        setupObservers()
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnRegister.setOnClickListener {
@@ -36,7 +31,7 @@ class RegisterActivity : MvpAppCompatActivity(), RegisterView {
 
             if (email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty() && name.isNotEmpty()) {
                 if (password == confirmPassword) {
-                    presenter.register(name,email,password)
+                    registerViewModel.register(name,email,password)
                 } else {
                     Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
                 }
@@ -46,7 +41,17 @@ class RegisterActivity : MvpAppCompatActivity(), RegisterView {
         }
     }
 
-    override fun confirmRegister() {
+    private fun setupObservers() {
+        registerViewModel.register.observe(this) { register ->
+            confirmRegister()
+        }
+
+        registerViewModel.errorMessage.observe(this) { errorMessage ->
+            Log.e("ChatsFragment", "Error: $errorMessage")
+        }
+    }
+
+    fun confirmRegister() {
         Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
         finish()
     }

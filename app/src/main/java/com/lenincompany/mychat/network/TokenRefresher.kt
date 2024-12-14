@@ -6,9 +6,6 @@ import android.os.Looper
 import android.util.Log
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.data.SharedPrefs
-import com.lenincompany.mychat.models.base.Token
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 
 class TokenRefresher(
     private val dataRepository: DataRepository,
@@ -46,7 +43,8 @@ class TokenRefresher(
             Log.e("TokenRefresher", "Missing token or userId")
             return
         }
-
+        //TODO Допилить
+/*
         dataRepository.refresh(Token(userId, refreshToken, accessToken))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -67,5 +65,7 @@ class TokenRefresher(
                     Log.e("TokenRefresher", "Error occurred: ${throwable.message}")
                 }
             )
+
+ */
     }
 }

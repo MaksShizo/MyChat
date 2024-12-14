@@ -1,37 +1,36 @@
-package com.lenincompany.mychat.ui.auth
+package com.lenincompany.mychat.ui.auth.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.databinding.ActivityLoginBinding
 import com.lenincompany.mychat.models.base.Token
 import com.lenincompany.mychat.models.user.UserInfoResponse
 import com.lenincompany.mychat.network.TokenRefresher
+import com.lenincompany.mychat.ui.auth.forgotpass.ForgotPasswordActivity
+import com.lenincompany.mychat.ui.auth.register.RegisterActivity
 import com.lenincompany.mychat.ui.main.MainActivity
-import dagger.android.AndroidInjection
-import moxy.MvpAppCompatActivity
-import moxy.presenter.InjectPresenter
-import moxy.presenter.ProvidePresenter
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-class LoginActivity : MvpAppCompatActivity(), LoginView {
+@AndroidEntryPoint
+class LoginActivity : AppCompatActivity() {
     @Inject
     lateinit var dataRepository: DataRepository
-
+    private val loginViewModel: LoginViewModel by viewModels()
     @Inject
     lateinit var sharedPrefs: SharedPrefs
     lateinit var binding: ActivityLoginBinding
-    @InjectPresenter
-    lateinit var presenter: LoginPresenter
-    @ProvidePresenter
-    fun providePresenter() = LoginPresenter(dataRepository)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
+        setupObservers()
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnLogin.setOnClickListener {
@@ -39,7 +38,7 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
             val password = binding.etPassword.text.toString()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                presenter.login(email,password)
+                loginViewModel.login(email,password)
             } else {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }
@@ -54,14 +53,28 @@ class LoginActivity : MvpAppCompatActivity(), LoginView {
         }
     }
 
-    override fun saveUserInfo(userInfoResponse: UserInfoResponse) {
+    private fun setupObservers() {
+        loginViewModel.login.observe(this) { login ->
+            setupTokenRefresher(login)
+        }
+
+        loginViewModel.infoForUser.observe(this) { info ->
+            saveUserInfo(info)
+        }
+
+        loginViewModel.errorMessage.observe(this) { errorMessage ->
+            Log.e("ChatsFragment", "Error: $errorMessage")
+        }
+    }
+
+    fun saveUserInfo(userInfoResponse: UserInfoResponse) {
         sharedPrefs.saveUser(userInfoResponse)
     }
 
-    override fun setupTokenRefresher(token : Token) {
+    fun setupTokenRefresher(token : Token) {
         val sharedPrefs = SharedPrefs(this)
         sharedPrefs.saveTokens(token)
-        presenter.getInfoForUser(token.UserId)
+        loginViewModel.getInfoForUser(token.UserId)
         TokenRefresher(dataRepository, SharedPrefs(this))
         startActivity(Intent(this, MainActivity::class.java))
     }

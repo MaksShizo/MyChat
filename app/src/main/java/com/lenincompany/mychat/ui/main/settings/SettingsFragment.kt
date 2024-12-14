@@ -50,21 +50,13 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Наблюдение за состояниями LiveData
         setupObservers()
-
-        // Загрузка фото пользователя
         settingsViewModel.downloadUserPhoto()
-
-        // Загрузка информации о пользователе
         if (settingsViewModel.isUserInfoAvailable()) {
             populateUserInfo()
         } else {
             settingsViewModel.fetchUserInfo()
         }
-
-        // Кнопка обновления фото
         binding.updateImage.setOnClickListener {
             val photoPickerIntent = Intent(Intent.ACTION_PICK)
             photoPickerIntent.type = "image/*"

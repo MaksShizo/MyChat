@@ -46,9 +46,9 @@ class ChatWebSocket(
     fun sendMessage(message: String) {
         webSocket?.let {
             if (it.send(message)) {
-                println("Message sent: $message")
+                Log.d("ws","Message sent: $message")
             } else {
-                println("Failed to send message")
+                Log.e("ws","Failed to send message")
             }
         }
     }

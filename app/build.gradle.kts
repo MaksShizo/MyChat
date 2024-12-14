@@ -62,18 +62,13 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.adapter.kotlin.coroutines)
     implementation(libs.squareup.picasso)
+
     implementation(libs.okhttp)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.circleimageview)
     implementation(libs.glide.v4142)
     implementation(libs.logging.interceptor)// Interceptor для логирования
     kapt(libs.compiler)
-    //dagger2
-    implementation(libs.dagger)
-    implementation(libs.dagger.android)
-    kapt(libs.dagger.compiler)
-    kapt(libs.dagger.android.processor)
-    implementation(libs.dagger.android.support)
     //hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
