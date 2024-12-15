@@ -66,10 +66,7 @@ interface ApiService {
     suspend fun getGroupChatInfo(@Path("chatId") chatId: Int): Response<ChatInfo>
 
     @Multipart
-    @POST("api/User/uploadChatPhoto/{chatId}")
+    @POST("api/GroupChat/uploadChatPhoto/{chatId}")
     suspend fun uploadChatPhoto(@Path("chatId") chatId: Int, @Part file: MultipartBody.Part): MessageServer
-
-
-
 
 }

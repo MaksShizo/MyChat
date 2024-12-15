@@ -66,20 +66,4 @@ class ChatViewModel @Inject constructor(
             }
         }
     }
-
-    fun downloadUserPhoto(userId: Int) {
-        viewModelScope.launch(Dispatchers.IO)
-        {
-            try {
-                val response = dataRepository.downloadUserPhoto(userId)
-                if (response.isSuccessful) {
-                    _usersPhoto.postValue(Pair(response.body()!!, userId))
-                } else {
-                    _errorMessage.postValue("Failed to load chat users photo info: ${response.message()}")
-                }
-            }catch (e: Exception) {
-                _errorMessage.postValue("Error load chat users photo info: ${e.message}")
-            }
-        }
-    }
 }

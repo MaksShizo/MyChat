@@ -22,6 +22,12 @@ data class ChatInfo (
     val userId: Int,
 
     /**
+     * Пользователь, создавший чат.
+     */
+    @SerializedName("Photo")
+    val photo: String?,
+
+    /**
      * Дата создания чата.
      */
     @SerializedName("CreateDate")

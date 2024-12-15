@@ -1,21 +1,25 @@
 package com.lenincompany.mychat.ui.chat.edit
 
+import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.models.chat.ChatInfo
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.ResponseBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import java.io.InputStream
 import javax.inject.Inject
 
-class EditViewModel@Inject constructor(
+@HiltViewModel
+class EditViewModel @Inject constructor(
     private val dataRepository: DataRepository,
 ) : ViewModel() {
     private val _addUser = MutableLiveData<Boolean>()
@@ -24,8 +28,8 @@ class EditViewModel@Inject constructor(
     private val _chatInfo = MutableLiveData<ChatInfo>()
     val chatInfo: LiveData<ChatInfo> get() = _chatInfo
 
-    private val _chatPhoto = MutableLiveData<ResponseBody>()
-    val chatPhoto: LiveData<ResponseBody> get() = _chatPhoto
+    private val _chatPhoto = MutableLiveData<String>()
+    val chatPhoto: LiveData<String> get() = _chatPhoto
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
@@ -64,32 +68,17 @@ class EditViewModel@Inject constructor(
         }
     }
 
-    fun getChatPhoto(chatId: Int) {
-        viewModelScope.launch(Dispatchers.IO)
-        {
+    fun uploadChatPhoto(chatId: Int, file: File, mimeType: String) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                val response = dataRepository.downloadChatPhoto(chatId)
-                if (response.isSuccessful) {
-                    _chatPhoto.postValue(response.body()!!)
-                } else {
-                    _errorMessage.postValue("Failed to load chat users photo info: ${response.message()}")
-                }
-            }catch (e: Exception) {
-                _errorMessage.postValue("Error load chat users photo info: ${e.message}")
-            }
-        }
-    }
-
-    fun uploadChatPhoto(chatId: Int, file: File) {
-        viewModelScope.launch(Dispatchers.IO)
-        {
-            try {
-                val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), file)
+                val requestBody = file.asRequestBody(mimeType.toMediaTypeOrNull())
+                Log.d("test", mimeType)
                 val filePart = MultipartBody.Part.createFormData("file", file.name, requestBody)
-                dataRepository.uploadChatPhoto(chatId, filePart)
-                getChatPhoto(chatId)
-            }catch (e: Exception) {
-                _errorMessage.postValue("Error load chat users photo info: ${e.message}")
+                val response = dataRepository.uploadChatPhoto(chatId, filePart)
+                if(response.url!=null)
+                    _chatPhoto.postValue(response.url!!)
+            } catch (e: Exception) {
+                _errorMessage.postValue("Error uploading photo: ${e.localizedMessage}")
             }
         }
     }

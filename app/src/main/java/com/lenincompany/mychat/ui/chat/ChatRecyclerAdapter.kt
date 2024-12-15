@@ -76,8 +76,9 @@ class ChatRecyclerAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun addUsersPhoto(userPhoto: UsersPhoto) {
-        usersPhoto.add(userPhoto)
+    fun addUsersPhoto(userPhoto: List<UsersPhoto>) {
+        usersPhoto.clear()
+        usersPhoto.addAll(userPhoto)
         notifyDataSetChanged()  // Уведомляем адаптер, что данные изменились
     }
 

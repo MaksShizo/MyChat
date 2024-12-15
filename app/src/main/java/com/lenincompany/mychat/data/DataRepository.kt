@@ -60,10 +60,6 @@ class DataRepository @Inject constructor(
         return apiService.addUsersInChat(chatId, userId)
     }
 
-    suspend fun downloadChatPhoto(chatId: Int): Response<ResponseBody> {
-        return apiServiceScalar.getGroupChatPhoto(chatId)
-    }
-
     suspend fun getGroupChatInfo(chatId: Int): Response<ChatInfo> {
         return apiService.getGroupChatInfo(chatId)
     }
@@ -82,9 +78,5 @@ class DataRepository @Inject constructor(
 
     suspend fun getUser(userId: Int):  Response<UserInfoResponse> {
         return apiService.getUser(userId)
-    }
-
-    suspend fun downloadUserPhoto(userId: Int): Response<ResponseBody> {
-        return apiServiceScalar.downloadPhoto(userId)
     }
 }

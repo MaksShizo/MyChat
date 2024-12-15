@@ -4,7 +4,8 @@ data class UserInfoResponse (
     val UserId : Int,
     val CreateDate : String,
     val Name : String,
-    val Email : String
+    val Email : String,
+    val Photo : String
 )
 
 

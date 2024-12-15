@@ -19,6 +19,7 @@ import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.models.chat.UsersPhoto
 import com.lenincompany.mychat.ui.chat.edit.EditActivity
+import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -142,8 +143,6 @@ class ChatActivity : AppCompatActivity() {
         }
 
         chatViewModel.usersPhoto.observe(this) { usersPhoto ->
-            savePhoto(usersPhoto.first.byteStream(),usersPhoto.second )
-            //TODO Переделать
         }
 
 
@@ -210,20 +209,9 @@ class ChatActivity : AppCompatActivity() {
     fun setUser(usersResponse: List<ChatUsers>) {
         users = usersResponse
         usersResponse.forEach {
-            if (it.Photo != null) {
-                chatViewModel.downloadUserPhoto(it.UserId)
-            }
+            //TODO доделать
+            //usersPhoto.add(UsersPhoto(it.UserId,Picasso.get().load(it.Photo).get()))
         }
-    }
-
-    fun savePhoto(inputStream: InputStream, userId: Int) {
-        try {
-            val byteArray = inputStream.readBytes()
-            val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-            inputStream.close()
-            rvAdapter.addUsersPhoto(UsersPhoto(userId, bitmap))
-        } catch (e: Exception) {
-            Log.e("ApiError", "Error reading photo data: ${e.message}")
-        }
+       // rvAdapter.addUsersPhoto(usersPhoto)
     }
 }

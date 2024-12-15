@@ -14,4 +14,5 @@
 
     <!-- ChatEdit activity -->
     <string name="activity_chat_edit_activity">Добавить пользователя</string>
+    <string name="plus">+</string>
 </resources>

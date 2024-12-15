@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.lenincompany.mychat.databinding.FragmentSettingsBinding
 import com.lenincompany.mychat.models.user.UserInfoResponse
+import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.io.FileOutputStream
@@ -51,12 +52,13 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupObservers()
-        settingsViewModel.downloadUserPhoto()
-        if (settingsViewModel.isUserInfoAvailable()) {
-            populateUserInfo()
-        } else {
-            settingsViewModel.fetchUserInfo()
-        }
+        //settingsViewModel.downloadUserPhoto()
+        //if (settingsViewModel.isUserInfoAvailable()) {
+        //    populateUserInfo()
+        //} else {
+        //
+        //}
+        settingsViewModel.fetchUserInfo()
         binding.updateImage.setOnClickListener {
             val photoPickerIntent = Intent(Intent.ACTION_PICK)
             photoPickerIntent.type = "image/*"
@@ -69,8 +71,8 @@ class SettingsFragment : Fragment() {
             setInfoOnActivity(userInfo)
         }
 
-        settingsViewModel.userPhoto.observe(viewLifecycleOwner) { inputStream ->
-            setPhoto(inputStream)
+        settingsViewModel.userPhoto.observe(viewLifecycleOwner) { userPhoto ->
+            Picasso.get().load(userPhoto).into(binding.imageView2)
         }
 
         settingsViewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
@@ -80,13 +82,21 @@ class SettingsFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
             val selectedImageUri: Uri? = data.data
             if (selectedImageUri != null) {
+                // Получаем MIME-тип файла
+                val mimeType = requireContext().contentResolver.getType(selectedImageUri)
+                // Пытаемся получить файл
                 val file = getDriveFilePath(selectedImageUri)
                 if (file != null) {
-                    settingsViewModel.uploadUserPhoto(file)
+                    // Если MIME-тип известен, передаем его при загрузке
+                    if (mimeType != null) {
+                        settingsViewModel.uploadUserPhoto(file, mimeType)
+                    } else {
+                        // Если MIME-тип не определился, можно попробовать по умолчанию
+                        settingsViewModel.uploadUserPhoto(file, "image/*")
+                    }
                 }
             }
         }
@@ -121,16 +131,6 @@ class SettingsFragment : Fragment() {
         binding.nameTv.text = response.Name
         binding.emailTv.text = response.Email
         binding.useridTv.text = response.UserId.toString()
-    }
-
-    private fun setPhoto(inputStream: InputStream) {
-        try {
-            val byteArray = inputStream.readBytes()
-            val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-            inputStream.close()
-            binding.imageView2.setImageBitmap(bitmap)
-        } catch (e: Exception) {
-            Log.e("SettingsFragment", "Error reading photo data: ${e.message}")
-        }
+        Picasso.get().load(response.Photo).into(binding.imageView2);
     }
 }
