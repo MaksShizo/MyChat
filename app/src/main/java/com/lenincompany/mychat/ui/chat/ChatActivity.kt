@@ -18,6 +18,7 @@ import com.lenincompany.mychat.databinding.ActivityChatBinding
 import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.models.chat.UsersPhoto
+import com.lenincompany.mychat.ui.chat.edit.EditActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -90,7 +91,7 @@ class ChatActivity : AppCompatActivity() {
         binding.chatCustomToolbar.chatTitle.text = nameChat
         // Добавьте обработчик клика
         binding.chatCustomToolbar.chatTitle.setOnClickListener {
-            showChatInfoDialog()
+            showChatInfo(chatId)
         }
         chatWebSocket = ChatWebSocket(
             serverUrl = "ws://10.0.2.2:5093/ws",
@@ -160,13 +161,13 @@ class ChatActivity : AppCompatActivity() {
         recyclerView.smoothScrollToPosition(messages.size - 1)
     }
 
-    private fun showChatInfoDialog() {
-        // Здесь вы можете показать информацию о чате
-        AlertDialog.Builder(this)
-            .setTitle("Информация о чате")
-            .setMessage("Здесь отображается информация о текущем чате.")
-            .setPositiveButton("ОК") { dialog, _ -> dialog.dismiss() }
-            .show()
+    private fun showChatInfo(chatId: Int) {
+        startActivity(
+            EditActivity.forIntent(
+                packageContext = this,
+                chatId = chatId
+            )
+        )
     }
 
     private fun parseMessage(message: String): Message {

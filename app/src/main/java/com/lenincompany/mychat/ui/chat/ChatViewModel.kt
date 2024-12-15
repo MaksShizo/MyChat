@@ -48,7 +48,6 @@ class ChatViewModel @Inject constructor(
                 _errorMessage.postValue("Error load chat messages info: ${e.message}")
             }
         }
-        //showMessage
     }
 
     fun getUsers(chatId: Int)
@@ -66,7 +65,6 @@ class ChatViewModel @Inject constructor(
                 _errorMessage.postValue("Error load chat users info: ${e.message}")
             }
         }
-        //viewState.setUser(messageResponse.body()!!)
     }
 
     fun downloadUserPhoto(userId: Int) {
@@ -83,6 +81,5 @@ class ChatViewModel @Inject constructor(
                 _errorMessage.postValue("Error load chat users photo info: ${e.message}")
             }
         }
-        //viewState.savePhoto(responseBody.body()!!.byteStream(), userId)
     }
 }
