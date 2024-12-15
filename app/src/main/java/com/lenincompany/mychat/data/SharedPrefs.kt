@@ -3,9 +3,12 @@ package com.lenincompany.mychat.data
 import android.content.Context
 import com.lenincompany.mychat.models.base.Token
 import com.lenincompany.mychat.models.user.UserInfoResponse
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class SharedPrefs @Inject constructor(val context: Context)
+class SharedPrefs @Inject constructor(
+    @ApplicationContext private val context: Context
+)
 {
     private val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 

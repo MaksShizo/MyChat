@@ -60,7 +60,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.scalars)
     implementation(libs.converter.gson)
-    implementation(libs.adapter.kotlin.coroutines)
     implementation(libs.squareup.picasso)
 
     implementation(libs.okhttp)
