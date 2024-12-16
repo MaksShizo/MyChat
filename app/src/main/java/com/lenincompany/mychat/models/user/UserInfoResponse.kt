@@ -5,7 +5,8 @@ data class UserInfoResponse (
     val CreateDate : String,
     val Name : String,
     val Email : String,
-    val Photo : String
+    val Photo : String?,
+    val Phone : String
 )
 
 

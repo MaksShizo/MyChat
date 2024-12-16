@@ -45,6 +45,8 @@ interface ApiService {
     @GET("api/User/user/{userId}")
     suspend fun getUser(@Path("userId") userId: Int): Response<UserInfoResponse>
 
+    @POST("api/User/user/phone")
+    suspend fun getUserForPhone(@Body phones: List<String>): Response<List<UserInfoResponse>>
     // GroupChat
 
     @GET("api/GroupChat/user/{userId}")

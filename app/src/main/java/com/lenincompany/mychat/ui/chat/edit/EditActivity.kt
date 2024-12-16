@@ -1,16 +1,24 @@
 package com.lenincompany.mychat.ui.chat.edit
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.lenincompany.mychat.databinding.ActivityChatEditBinding
+import com.lenincompany.mychat.models.Contact
 import com.lenincompany.mychat.models.chat.ChatInfo
 import com.lenincompany.mychat.ui.chat.ChatActivity
 import com.lenincompany.mychat.ui.main.settings.SettingsFragment.Companion.PICK_IMAGE_REQUEST_CODE
@@ -28,6 +36,18 @@ class EditActivity : AppCompatActivity(){
     private val editViewModel: EditViewModel by viewModels()
     private lateinit var rvAdapter: EditChatUsersRecyclerAdapter
     private var chatId = 0
+    private val contactsList = mutableListOf<Contact>()
+    private val requestPermissionLauncher = this.registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            getContacts()
+        } else {
+            Toast.makeText(this, "Permission denied to read contacts", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
     companion object {
         private const val EXTRA_CHAT_ID = "extra_chat_id"
         /**
@@ -57,6 +77,11 @@ class EditActivity : AppCompatActivity(){
             chatId = intent.getIntExtra(EXTRA_CHAT_ID, 0)
         }
         editViewModel.getGroupChatInfo(chatId)
+
+        binding.addUser.setOnClickListener {
+            askContactPermission()
+        }
+
         binding.addImage.setOnClickListener {
             val photoPickerIntent = Intent(Intent.ACTION_PICK)
             photoPickerIntent.type = "image/*"
@@ -65,8 +90,22 @@ class EditActivity : AppCompatActivity(){
     }
 
     private fun setupObservers() {
-        editViewModel.addUser.observe(this) { chat ->
+        editViewModel.addUser.observe(this) { flag ->
+            if(flag) editViewModel.getGroupChatInfo(chatId)
+        }
 
+        editViewModel.usersInfo.observe(this) { users ->
+            if(!users.isNullOrEmpty())
+            showUserSelectionDialog(users.map { Contact(it.Name, it.Phone, it.UserId) }.toList()) {
+                editViewModel.addUser(
+                    chatId,
+                    it.filter { it.userId != null }.map { it.userId!! }.toList()
+                )
+            }
+        }
+
+        editViewModel.usersPhoto.observe(this) { userPhoto ->
+            rvAdapter.addUsersPhoto(userPhoto)
         }
 
         editViewModel.chatInfo.observe(this) { chatInfo ->
@@ -128,6 +167,70 @@ class EditActivity : AppCompatActivity(){
         if(chatInfo.photo!=null)
             Picasso.get().load(chatInfo.photo).into(binding.imageChat)
         rvAdapter.setData(chatInfo.groupChatUsers)
+        editViewModel.getUserPhotos(chatInfo.groupChatUsers)
+    }
+
+    fun showUserSelectionDialog(
+        userList: List<Contact>, // список пользователей
+        onUsersSelected: (selectedUsers: List<Contact>) -> Unit // колбэк для выбранных пользователей
+    ) {
+        val selectedItems = mutableSetOf<Int>() // Хранит индексы выбранных пользователей
+        val userNames = userList.map { it.name }.toTypedArray() // Имена пользователей
+
+        AlertDialog.Builder(this)
+            .setTitle("Выберите пользователей для добавления")
+            .setMultiChoiceItems(userNames, null) { _, index, isChecked ->
+                if (isChecked) {
+                    selectedItems.add(index)
+                } else {
+                    selectedItems.remove(index)
+                }
+            }
+            .setPositiveButton("Добавить") { _, _ ->
+                // Передаем список выбранных пользователей через колбэк
+                val selectedUsers = selectedItems.map { userList[it] }
+                onUsersSelected(selectedUsers)
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    // Запрос разрешения
+    private fun askContactPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            getContacts()
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+        }
+    }
+
+    private fun getContacts() {
+        val contentResolver = contentResolver
+        val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+        val projection = arrayOf(
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER
+        )
+
+        contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+            while (cursor.moveToNext()) {
+                val name = cursor.getString(
+                    cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                )
+                val phone = cursor.getString(
+                    cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER)
+                )
+                contactsList.add(Contact(name,phone))
+            }
+        }
+        if(contactsList.isNotEmpty())
+        {
+            editViewModel.getUsersForPhone(contactsList)
+        }
     }
 
 }

@@ -30,7 +30,7 @@ class ContactsFragment: Fragment() {
     lateinit var sharedPrefs: SharedPrefs
 
     lateinit var rvAdapter: ContactsRecyclerAdapter
-    val contactsList = mutableListOf<Contact>()
+    private val contactsList = mutableListOf<Contact>()
     private lateinit var binding: FragmentContactsBinding
 
     companion object {
@@ -105,7 +105,7 @@ class ContactsFragment: Fragment() {
                     cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
                 )
                 val phone = cursor.getString(
-                    cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                    cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER)
                 )
                 contactsList.add(Contact(name,phone))
             }

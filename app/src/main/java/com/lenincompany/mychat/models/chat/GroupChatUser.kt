@@ -1,6 +1,7 @@
 package com.lenincompany.mychat.models.chat
 
 import com.google.gson.annotations.SerializedName
+import com.lenincompany.mychat.models.user.UserInfoResponse
 
 data class GroupChatUser (
     /**
@@ -8,10 +9,9 @@ data class GroupChatUser (
      */
     @SerializedName("UserId")
     val userId: Int,
-
     /**
-     * Имя участника.
+     * Все данные пользователя.
      */
-    @SerializedName("UserName")
-    val userName: String
+    @SerializedName("User")
+    val user: UserInfoResponse
 )

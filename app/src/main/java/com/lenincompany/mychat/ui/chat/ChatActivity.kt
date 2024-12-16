@@ -143,6 +143,7 @@ class ChatActivity : AppCompatActivity() {
         }
 
         chatViewModel.usersPhoto.observe(this) { usersPhoto ->
+            rvAdapter.addUsersPhoto(usersPhoto)
         }
 
 
@@ -208,10 +209,6 @@ class ChatActivity : AppCompatActivity() {
 
     fun setUser(usersResponse: List<ChatUsers>) {
         users = usersResponse
-        usersResponse.forEach {
-            //TODO доделать
-            //usersPhoto.add(UsersPhoto(it.UserId,Picasso.get().load(it.Photo).get()))
-        }
-       // rvAdapter.addUsersPhoto(usersPhoto)
+        chatViewModel.getUserPhotos(usersResponse)
     }
 }

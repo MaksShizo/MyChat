@@ -79,4 +79,8 @@ class DataRepository @Inject constructor(
     suspend fun getUser(userId: Int):  Response<UserInfoResponse> {
         return apiService.getUser(userId)
     }
+
+    suspend fun getUserForPhone(phones : List<String>):  Response<List<UserInfoResponse>> {
+        return apiService.getUserForPhone(phones)
+    }
 }

@@ -27,7 +27,7 @@ class EditChatUsersRecyclerAdapter(
         fun bind(user: GroupChatUser, onChatClick: (Message) -> Unit) {
             val context = itemView.context
             binding.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_app))
-            binding.nameTv.text = user.userName
+            binding.nameTv.text = user.user.Name
             binding.root.setOnClickListener {
             }
             val photo = usersPhoto.find { it.userId == user.userId }
@@ -53,8 +53,8 @@ class EditChatUsersRecyclerAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun addUsersPhoto(userPhoto: UsersPhoto) {
-        usersPhoto.add(userPhoto)
+    fun addUsersPhoto(userPhoto: List<UsersPhoto>) {
+        usersPhoto.addAll(userPhoto)
         notifyDataSetChanged()  // Уведомляем адаптер, что данные изменились
     }
 
