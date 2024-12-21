@@ -1,17 +1,15 @@
 package com.lenincompany.mychat.network
 
-import com.lenincompany.mychat.models.chat.ChatBody
-import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.models.LoginRequest
 import com.lenincompany.mychat.models.base.MessageServer
 import com.lenincompany.mychat.models.base.Token
+import com.lenincompany.mychat.models.chat.ChatBody
 import com.lenincompany.mychat.models.chat.ChatInfo
+import com.lenincompany.mychat.models.chat.ChatUsers
+import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.models.user.UserInfoResponse
 import com.lenincompany.mychat.models.user.UserResponse
-import com.lenincompany.mychat.models.chat.ChatUsers
-import com.lenincompany.mychat.models.chat.GroupChatUser
 import okhttp3.MultipartBody
-import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -70,5 +68,9 @@ interface ApiService {
     @Multipart
     @POST("api/GroupChat/uploadChatPhoto/{chatId}")
     suspend fun uploadChatPhoto(@Path("chatId") chatId: Int, @Part file: MultipartBody.Part): MessageServer
+
+    @Multipart
+    @POST("api/GroupChat/uploadChatFiles/{chatId}")
+    suspend fun uploadChatFile(@Path("chatId") chatId: Int, @Part file: MultipartBody.Part): MessageServer
 
 }

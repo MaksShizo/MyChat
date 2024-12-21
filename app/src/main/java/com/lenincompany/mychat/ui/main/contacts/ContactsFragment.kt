@@ -1,10 +1,10 @@
 package com.lenincompany.mychat.ui.main.contacts
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.data.SharedPrefs
@@ -25,7 +26,7 @@ import javax.inject.Inject
 class ContactsFragment: Fragment() {
     @Inject
     lateinit var dataRepository: DataRepository
-
+    private val contactsViewModel: ContactsViewModel by viewModels()
     @Inject
     lateinit var sharedPrefs: SharedPrefs
 
@@ -35,9 +36,6 @@ class ContactsFragment: Fragment() {
 
     companion object {
         internal const val ARG_TYPE = "arg_type"
-        /**
-         * Returns created [WorksFragment] with given filter fragmentType
-         */
         fun newInstance(type: String): SettingsFragment {
             val args = Bundle()
             args.putString(ARG_TYPE, type)
@@ -49,6 +47,7 @@ class ContactsFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupObservers()
         rvAdapter = ContactsRecyclerAdapter(mutableListOf())
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = rvAdapter
@@ -58,6 +57,16 @@ class ContactsFragment: Fragment() {
         askContactPermission()
     }
 
+    private fun setupObservers() {
+        contactsViewModel.usersInfo.observe(viewLifecycleOwner) { users ->
+            if(users!=null)
+                rvAdapter.setData(users)
+        }
+
+        contactsViewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
+            Log.e("ChatsFragment", "Error: $errorMessage")
+        }
+    }
 
     private val requestPermissionLauncher = this.registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -96,7 +105,7 @@ class ContactsFragment: Fragment() {
         val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
         val projection = arrayOf(
             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-            ContactsContract.CommonDataKinds.Phone.NUMBER
+            ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER
         )
 
         contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
@@ -110,7 +119,7 @@ class ContactsFragment: Fragment() {
                 contactsList.add(Contact(name,phone))
             }
         }
-        rvAdapter.setData(contactsList)
+        contactsViewModel.getUsersForPhone(contactsList)
     }
 
 

@@ -24,7 +24,7 @@ object AppModule {
         @Named("jsonApiService") apiService: ApiService,
         @Named("scalarApiService") apiServiceScalar: ApiServiceScalar
     ): DataRepository {
-        return DataRepository(apiService, apiServiceScalar)
+        return DataRepository(apiService)
     }
 }
 

@@ -1,9 +1,9 @@
 package com.lenincompany.mychat.ui.chat
 
-import android.app.AlertDialog
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -17,12 +17,13 @@ import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.databinding.ActivityChatBinding
 import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.models.chat.Message
-import com.lenincompany.mychat.models.chat.UsersPhoto
 import com.lenincompany.mychat.ui.chat.edit.EditActivity
-import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.time.LocalDate
 import javax.inject.Inject
@@ -33,14 +34,14 @@ class ChatActivity : AppCompatActivity() {
     private val chatViewModel: ChatViewModel by viewModels()
     @Inject
     lateinit var sharedPrefs: SharedPrefs
-
+    private val fileChooserRequestCode = 1001
     private lateinit var binding: ActivityChatBinding
     private lateinit var chatWebSocket: ChatWebSocket
     private lateinit var rvAdapter: ChatRecyclerAdapter
+    private var files : Pair<File, String>? = null
     private var chatId = 0 // ID текущего чата
     private var userId = 0 // ID пользователя
     private var nameChat = "" // Название чата
-    private var usersPhoto = mutableListOf<UsersPhoto>() // Список сообщений для адаптера
     private var users = listOf<ChatUsers>() // Список сообщений для адаптера
     private val messages = mutableListOf<Message>() // Список сообщений для адаптера
     private lateinit var recyclerView: RecyclerView
@@ -117,20 +118,19 @@ class ChatActivity : AppCompatActivity() {
 
         chatWebSocket.connect(chatId) // Передача chatId для фильтрации
         binding.imageButton3.setOnClickListener {
-            val message = binding.editTextText.text.toString()
-            if (message.isNotEmpty()) {
-                val jsonMessage = Message(
-                    ChatId = chatId,
-                    UserId = userId,
-                    Content = message,
-                    DateCreate = LocalDate.now().toString(),
-                )
-                chatWebSocket.sendMessage(Json.encodeToString(jsonMessage)) // Используем encodeToString
-                binding.editTextText.text.clear()
+            if(files!=null)
+            {
+                chatViewModel.uploadChatFile(chatId, files!!.first, files!!.second)
+            }else
+            {
+                val message = binding.editTextText.text.toString()
+                sendMessage(message, Message.TEXT)
             }
         }
+        binding.addFiles.setOnClickListener{
+            openFileChooser()
+        }
         chatViewModel.getUsers(chatId)
-        chatViewModel.getMessages(chatId)
     }
 
     private fun setupObservers() {
@@ -138,8 +138,13 @@ class ChatActivity : AppCompatActivity() {
             showMessage(chat)
         }
 
+        chatViewModel.chatFile.observe(this) { chatFile ->
+            sendMessage(chatFile.url!!,chatFile.type!!)
+        }
+
         chatViewModel.users.observe(this) { users ->
             setUser(users)
+            chatViewModel.getMessages(chatId)
         }
 
         chatViewModel.usersPhoto.observe(this) { usersPhoto ->
@@ -152,6 +157,27 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    fun sendMessage(message: String, type: Short){
+        if (message.isNotEmpty()) {
+            val jsonMessage = Message(
+                ChatId = chatId,
+                UserId = userId,
+                Content = message,
+                DateCreate = LocalDate.now().toString(),
+                Type = type
+            )
+            chatWebSocket.sendMessage(Json.encodeToString(jsonMessage)) // Используем encodeToString
+            binding.editTextText.text.clear()
+        }
+    }
+
+    private fun openFileChooser() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "*/*" // Все типы файлов
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true) // Для выбора нескольких файлов
+        }
+        startActivityForResult(Intent.createChooser(intent, "Select File"), fileChooserRequestCode)
+    }
 
     private fun handleMessage(message: String) {
         // Преобразование JSON в объект и добавление в список
@@ -179,7 +205,8 @@ class ChatActivity : AppCompatActivity() {
                 ChatId = chatId,
                 UserId = userId,
                 Content = "Parsing error",
-                DateCreate = LocalDate.now().toString()
+                DateCreate = LocalDate.now().toString(),
+                Type = Message.ERROR
             )
         }
     }
@@ -190,7 +217,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item?.itemId) {
+        return when (item.itemId) {
             android.R.id.home -> {
                 super.onBackPressed()
                 return true
@@ -199,6 +226,42 @@ class ChatActivity : AppCompatActivity() {
             else -> {
                 false
             }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == fileChooserRequestCode && resultCode == Activity.RESULT_OK && data != null) {
+            val selectedFileUri: Uri? = data.data
+            if (selectedFileUri != null) {
+                val mimeType = contentResolver.getType(selectedFileUri)
+                val file = getDriveFilePath(selectedFileUri)
+                if (file != null) {
+                    if (mimeType != null) {
+                        files  = Pair(file, mimeType)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getDriveFilePath(uri: Uri): File? {
+        val file = File(this.cacheDir, uri.lastPathSegment!!)
+        try {
+            val instream: InputStream = this.contentResolver.openInputStream(uri)!!
+            val output = FileOutputStream(file)
+            val buffer = ByteArray(1024)
+            var size: Int
+            while (instream.read(buffer).also { size = it } != -1) {
+                output.write(buffer, 0, size)
+            }
+            instream.close()
+            output.close()
+            return file
+        } catch (e: IOException) {
+            Log.d("SettingsFragment", "Error creating file: ${e}")
+            return null
         }
     }
 

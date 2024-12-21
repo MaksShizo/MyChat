@@ -1,7 +1,6 @@
 package com.lenincompany.mychat.ui.chat.edit
 
 import android.util.Log
-import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.lenincompany.mychat.data.DataRepository
 import com.lenincompany.mychat.models.Contact
 import com.lenincompany.mychat.models.chat.ChatInfo
-import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.models.chat.GroupChatUser
 import com.lenincompany.mychat.models.chat.UsersPhoto
 import com.lenincompany.mychat.models.user.UserInfoResponse
@@ -21,7 +19,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
-import java.io.InputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,7 +39,6 @@ class EditViewModel @Inject constructor(
 
     private val _usersPhoto = MutableLiveData<List<UsersPhoto>>()
     val usersPhoto: LiveData<List<UsersPhoto>> get() = _usersPhoto
-
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage

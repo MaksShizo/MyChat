@@ -1,24 +1,21 @@
 package com.lenincompany.mychat.data
 
-import com.lenincompany.mychat.models.chat.ChatBody
 import com.lenincompany.mychat.models.LoginRequest
-import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.models.base.MessageServer
 import com.lenincompany.mychat.models.base.Token
+import com.lenincompany.mychat.models.chat.ChatBody
 import com.lenincompany.mychat.models.chat.ChatInfo
+import com.lenincompany.mychat.models.chat.ChatUsers
+import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.models.user.UserInfoResponse
 import com.lenincompany.mychat.models.user.UserResponse
-import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.network.ApiService
-import com.lenincompany.mychat.network.ApiServiceScalar
 import okhttp3.MultipartBody
-import okhttp3.ResponseBody
 import retrofit2.Response
 import javax.inject.Inject
 
 class DataRepository @Inject constructor(
-    val apiService: ApiService,
-    val apiServiceScalar: ApiServiceScalar
+    val apiService: ApiService
 ) {
     // Auth
 
@@ -66,6 +63,10 @@ class DataRepository @Inject constructor(
 
     suspend fun uploadChatPhoto(chatId: Int, file: MultipartBody.Part): MessageServer {
         return apiService.uploadChatPhoto(chatId, file)
+    }
+
+    suspend fun uploadChatFile(chatId: Int, file: MultipartBody.Part): MessageServer {
+        return apiService.uploadChatFile(chatId, file)
     }
 
 
