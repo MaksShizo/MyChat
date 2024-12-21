@@ -1,4 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="end"
@@ -13,24 +15,70 @@
         android:padding="8dp"
         android:text="@string/message_content"
         android:textColor="@android:color/black" />
-    <!-- Изображение -->
+
     <ImageView
         android:id="@+id/imageMessage"
         android:layout_width="209dp"
         android:layout_height="170dp"
         android:layout_marginStart="30dp"
+        android:background="@drawable/other_message_background"
         android:padding="3dp"
         android:scaleType="centerCrop"
-        android:background="@drawable/other_message_background"
         android:visibility="gone"/>
 
-    <!-- Видео -->
-    <VideoView
-        android:id="@+id/videoView"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/videoCL"
         android:layout_width="209dp"
         android:layout_height="170dp"
         android:layout_marginStart="30dp"
-        android:padding="3dp"
-        android:background="@drawable/other_message_background"
-        android:visibility="gone"/> <!-- Изначально скрыто -->
+        android:visibility="gone">
+
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="3dp" />
+
+        <ImageButton
+            android:id="@+id/downloadBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#0000"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/stat_sys_download" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:background="#0000"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/progress_bar_style"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/playBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#0000"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/videoView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/ic_media_play" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </LinearLayout>

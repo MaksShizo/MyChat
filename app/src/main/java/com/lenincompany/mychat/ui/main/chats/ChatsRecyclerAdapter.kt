@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lenincompany.mychat.R
 import com.lenincompany.mychat.databinding.ItemChatBinding
 import com.lenincompany.mychat.models.chat.ChatBody
+import com.lenincompany.mychat.models.chat.Message
+import com.squareup.picasso.Picasso
 
 class ChatsRecyclerAdapter(
     private var data: MutableList<ChatBody>,
@@ -18,9 +20,20 @@ class ChatsRecyclerAdapter(
         fun bind(chat: ChatBody, onChatClick: (ChatBody) -> Unit) {
             Log.d("ChatViewHolder", "Binding chat: ${chat.name}")
             val context = itemView.context
-            binding.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_app))
+            if(chat.photo!=null)
+                Picasso.get().load(chat.photo).into(binding.imageView)
+            else
+                binding.imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_app))
             binding.nameTv.text = chat.name
-            binding.lastMessage.text = chat.lastMessage
+            binding.lastMessage.text =
+                when (chat.lastMessage.Type)
+                {
+                    Message.TEXT -> chat.lastMessage.Content
+                    Message.IMAGE -> "Фотокарточка"
+                    Message.VIDEO -> "Видео"
+                    Message.DOC -> "Документ"
+                    else -> chat.lastMessage.Content
+                }
             binding.root.setOnClickListener {
                 onChatClick(chat)
             }

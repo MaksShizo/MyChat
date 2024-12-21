@@ -27,6 +27,10 @@ data class ChatBody (
     @SerializedName("CreateDate")
     val createDate: String,
 
+
+    @SerializedName("Photo")
+    val photo: String?,
+
     /**
      * Участники чата.
      */
@@ -37,5 +41,5 @@ data class ChatBody (
      * Последнее сообщение
      */
     @SerializedName("LastMessage")
-    val lastMessage: String
+    val lastMessage: Message
 )

@@ -29,9 +29,6 @@ class ChatsFragment : Fragment() {
 
     companion object {
         internal const val ARG_TYPE = "arg_type"
-        /**
-         * Returns created [WorksFragment] with given filter fragmentType
-         */
         fun newInstance(type: String): ChatsFragment {
             val args = Bundle()
             args.putString(ARG_TYPE, type)

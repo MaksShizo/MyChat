@@ -10,15 +10,26 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lenincompany.mychat.R
 import com.lenincompany.mychat.data.SharedPrefs
 import com.lenincompany.mychat.databinding.ActivityChatBinding
+import com.lenincompany.mychat.databinding.ItemOtherMessageBinding
+import com.lenincompany.mychat.databinding.ItemUserMessageBinding
 import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.ui.chat.edit.EditActivity
+import com.lenincompany.mychat.ui.chat.fullscreen.FullscreenImageFragment
+import com.lenincompany.mychat.ui.chat.fullscreen.FullscreenVideoFragment
+import com.lenincompany.mychat.utils.VideoSaver
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -121,10 +132,14 @@ class ChatActivity : AppCompatActivity() {
             if(files!=null)
             {
                 chatViewModel.uploadChatFile(chatId, files!!.first, files!!.second)
+                val message = binding.editTextText.text.toString()
+                if(message.isNotBlank())
+                    sendMessage(message, Message.TEXT)
             }else
             {
                 val message = binding.editTextText.text.toString()
-                sendMessage(message, Message.TEXT)
+                if(message.isNotBlank())
+                    sendMessage(message, Message.TEXT)
             }
         }
         binding.addFiles.setOnClickListener{
@@ -166,15 +181,15 @@ class ChatActivity : AppCompatActivity() {
                 DateCreate = LocalDate.now().toString(),
                 Type = type
             )
-            chatWebSocket.sendMessage(Json.encodeToString(jsonMessage)) // Используем encodeToString
+            chatWebSocket.sendMessage(Json.encodeToString(jsonMessage))
             binding.editTextText.text.clear()
         }
     }
 
     private fun openFileChooser() {
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-            type = "*/*" // Все типы файлов
-            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true) // Для выбора нескольких файлов
+            type = "*/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         }
         startActivityForResult(Intent.createChooser(intent, "Select File"), fileChooserRequestCode)
     }
@@ -274,4 +289,88 @@ class ChatActivity : AppCompatActivity() {
         users = usersResponse
         chatViewModel.getUserPhotos(usersResponse)
     }
+
+    // В вашем Activity или Fragment
+    fun openFullscreenImage(message: Message) {
+        val fragment = FullscreenImageFragment.newInstance(message.Content)
+        val fragmentManager = supportFragmentManager
+        fragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out, R.anim.slide_in, R.anim.slide_out)
+            .replace(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    fun openFullscreenVideo(message: Message, videoUri: Uri) {
+        val fragment = FullscreenVideoFragment.newInstance(videoUri)
+        val fragmentManager = supportFragmentManager
+        fragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.slide_out, R.anim.slide_in, R.anim.slide_out)
+            .replace(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    fun playVideo(binding: ItemUserMessageBinding, videoUri: Uri) {
+        binding.playBtn.isGone = true
+        binding.videoView.setVideoURI(videoUri)
+        binding.videoView.start()
+    }
+
+    ///Todo Вынести во ViewModel
+    fun downloadVideoAndPlay(binding: ItemUserMessageBinding, message: Message) {
+        val videoSaver = VideoSaver()
+        var videoUri: Uri? = null
+
+        binding.downloadBtn.isGone = true
+        binding.progressBar.isVisible = true
+
+        CoroutineScope(Dispatchers.IO).launch {
+            videoSaver.downloadVideo(message.Content, baseContext) { progress ->
+                binding.progressBar.progress = progress
+            }
+
+            videoUri = videoSaver.getFileUriFromUrl(baseContext, message.Content)
+
+            withContext(Dispatchers.Main) {
+                binding.progressBar.isGone = true
+                videoUri?.let {
+                    binding.videoView.setVideoURI(it)
+                    binding.playBtn.isVisible = true
+                }
+            }
+        }
+    }
+
+    fun playVideo(binding: ItemOtherMessageBinding, videoUri: Uri) {
+        binding.playBtn.isGone = true
+        binding.videoView.setVideoURI(videoUri)
+        binding.videoView.start()
+    }
+
+    ///Todo Вынести во ViewModel
+    fun downloadVideoAndPlay(binding: ItemOtherMessageBinding, message: Message) {
+        val videoSaver = VideoSaver()
+        var videoUri: Uri? = null
+
+        binding.downloadBtn.isGone = true
+        binding.progressBar.isVisible = true
+
+        CoroutineScope(Dispatchers.IO).launch {
+            videoSaver.downloadVideo(message.Content, baseContext) { progress ->
+                binding.progressBar.progress = progress
+            }
+
+            videoUri = videoSaver.getFileUriFromUrl(baseContext, message.Content)
+
+            withContext(Dispatchers.Main) {
+                binding.progressBar.isGone = true
+                videoUri?.let {
+                    binding.videoView.setVideoURI(it)
+                    binding.playBtn.isVisible = true
+                }
+            }
+        }
+    }
+
 }
