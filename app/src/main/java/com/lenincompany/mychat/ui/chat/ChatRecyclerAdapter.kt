@@ -40,61 +40,62 @@ class ChatRecyclerAdapter(
     class UserMessageViewHolder(private val binding: ItemUserMessageBinding, private val activity: AppCompatActivity) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(message: Message, onChatClick: (Message) -> Unit) {
-            Log.d("UserMessageViewHolder", "Binding chat: ${message.Content} ${message.Type}")
-            (activity as ChatActivity)
+            reset()
+            try {
+                Log.d("UserMessageViewHolder", "Binding chat: ${message.Content} ${message.Type}")
 
-            when (message.Type) {
-                Message.TEXT -> {
-                    binding.messageTv.isVisible = true
-                    binding.imageMessage.isGone = true
-                    binding.videoView.isGone = true
-                    binding.messageTv.text = message.Content
+                when (message.Type) {
+                    Message.TEXT -> showText(message)
+                    Message.IMAGE -> showImage(message)
+                    Message.VIDEO -> showVideo(message)
+                    Message.DOC -> showText(message)
                 }
+            } catch (e: Exception) {
+                Log.e("bindingError", "${e.message} USER: ${message.UserId}}")
+            }
+        }
+        private fun showText(message: Message) {
+            binding.messageTv.isVisible = true
+            binding.messageTv.text = message.Content
+        }
 
-                Message.IMAGE -> {
-                    binding.messageTv.isGone = true
-                    binding.imageMessage.isVisible = true
-                    binding.videoView.isGone = true
-                    Picasso.get().load(message.Content).into(binding.imageMessage)
-                    binding.imageMessage.setOnClickListener {
-                        activity.openFullscreenImage(message)
-                    }
-                }
+        private fun showImage(message: Message) {
+            binding.imageMessage.isVisible = true
+            Picasso.get().load(message.Content).into(binding.imageMessage)
+        }
 
-                Message.VIDEO -> {
-                    binding.messageTv.isGone = true
-                    binding.imageMessage.isGone = true
-                    binding.videoCL.isVisible = true
-                    val videoSaver = VideoSaver()
-                    var videoUri = videoSaver.getFileUriFromUrl(itemView.context, message.Content)
-                    if (videoUri != null) {
-                        binding.downloadBtn.isGone = true
-                        binding.videoView.setVideoURI(videoUri)
-                        binding.playBtn.isVisible = true
-                    } else {
-                        binding.downloadBtn.setOnClickListener {
-                            activity.downloadVideoAndPlay(binding, message)
-                        }
-                    }
-                    binding.videoView.setOnClickListener {
-                        if (videoUri != null) {
-                            activity.openFullscreenVideo(message, videoUri)
-                        }
-                    }
-                    binding.playBtn.setOnClickListener {
-                        if (videoUri != null) {
-                            activity.playVideo(binding, videoUri)
-                        }
-                    }
-                }
-
-                Message.DOC -> {
-                    binding.messageTv.isVisible = true
-                    binding.imageMessage.isGone = true
-                    binding.videoView.isGone = true
-                    binding.messageTv.text = message.Content
+        private fun showVideo(message: Message) {
+            binding.videoCL.isVisible = true
+            val videoSaver = VideoSaver()
+            val videoUri = videoSaver.getFileUriFromUrl(itemView.context, message.Content)
+            if (videoUri != null) {
+                binding.downloadBtn.isGone = true
+                binding.videoView.setVideoURI(videoUri)
+                binding.playBtn.isVisible = true
+            } else {
+                binding.downloadBtn.isVisible = true
+            }
+            binding.videoView.setOnClickListener {
+                if (videoUri != null) {
+                    (activity as ChatActivity).openFullscreenVideo(message, videoUri)
                 }
             }
+            binding.playBtn.setOnClickListener {
+                if (videoUri != null) {
+                    (activity as ChatActivity).playVideo(binding, videoUri)
+                }
+            }
+            binding.downloadBtn.setOnClickListener {
+                (activity as ChatActivity).downloadVideoAndPlay(binding, message)
+            }
+        }
+        fun reset() {
+            binding.messageTv.isGone = true
+            binding.imageMessage.isGone = true
+            binding.videoCL.isGone = true
+            binding.playBtn.isGone = true
+            binding.downloadBtn.isVisible = false
+            binding.videoView.stopPlayback()
         }
     }
 
@@ -105,6 +106,7 @@ class ChatRecyclerAdapter(
         private val activity: AppCompatActivity
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(message: Message, onChatClick: (Message) -> Unit) {
+            reset()
             try {
                 Log.d("OtherMessageViewHolder", "Binding chat: ${message.Content}")
                 (activity as ChatActivity)
@@ -117,64 +119,60 @@ class ChatRecyclerAdapter(
                 )
                 binding.userName.text = users.find { it.UserId == message.UserId }!!.Name
                 when (message.Type) {
-                    Message.TEXT -> {
-                        binding.messageTv.isVisible = true
-                        binding.imageMessage.isGone = true
-                        binding.videoView.isGone = true
-                        binding.messageTv.text = message.Content
-                    }
-
-                    Message.IMAGE -> {
-                        binding.messageTv.isGone = true
-                        binding.imageMessage.isVisible = true
-                        binding.videoView.isGone = true
-                        Picasso.get().load(message.Content).into(binding.imageMessage)
-                        binding.imageMessage.setOnClickListener {
-                            activity.openFullscreenImage(message)
-                        }
-                    }
-
-                    Message.VIDEO -> {
-                        binding.messageTv.isGone = true
-                        binding.imageMessage.isGone = true
-                        binding.videoCL.isVisible = true
-                        val videoSaver = VideoSaver()
-                        var videoUri = videoSaver.getFileUriFromUrl(itemView.context, message.Content)
-                        if (videoUri != null) {
-                            binding.downloadBtn.isGone = true
-                            binding.videoView.setVideoURI(videoUri)
-                            binding.playBtn.isVisible = true
-                        } else {
-                            binding.downloadBtn.setOnClickListener {
-                                activity.downloadVideoAndPlay(binding, message)
-                            }
-                        }
-                        binding.videoView.setOnClickListener {
-                            if (videoUri != null) {
-                                activity.openFullscreenVideo(message, videoUri)
-                            }
-                        }
-                        binding.playBtn.setOnClickListener {
-                            if (videoUri != null) {
-                                activity.playVideo(binding, videoUri)
-                            }
-                        }
-                    }
-
-                    Message.DOC -> {
-                        binding.messageTv.isVisible = true
-                        binding.imageMessage.isGone = true
-                        binding.videoView.isGone = true
-                        binding.messageTv.text = message.Content
-                    }
+                    Message.TEXT -> showText(message)
+                    Message.IMAGE -> showImage(message)
+                    Message.VIDEO -> showVideo(message)
+                    Message.DOC -> showText(message)
                 }
-
                 val photo = usersPhoto.find { it.userId == message.UserId }
                 if (photo != null)
                     binding.imageView.setImageBitmap(photo.bitmap)
             } catch (e: Exception) {
                 Log.e("bindingError", "${e.message} USER: ${message.UserId} users: ${users.toString()}")
             }
+        }
+        private fun showText(message: Message) {
+            binding.messageTv.isVisible = true
+            binding.messageTv.text = message.Content
+        }
+
+        private fun showImage(message: Message) {
+            binding.imageMessage.isVisible = true
+            Picasso.get().load(message.Content).into(binding.imageMessage)
+        }
+
+        private fun showVideo(message: Message) {
+            binding.videoCL.isVisible = true
+            val videoSaver = VideoSaver()
+            val videoUri = videoSaver.getFileUriFromUrl(itemView.context, message.Content)
+            if (videoUri != null) {
+                binding.downloadBtn.isGone = true
+                binding.videoView.setVideoURI(videoUri)
+                binding.playBtn.isVisible = true
+            } else {
+                binding.downloadBtn.isVisible = true
+            }
+            binding.videoView.setOnClickListener {
+                if (videoUri != null) {
+                    (activity as ChatActivity).openFullscreenVideo(message, videoUri)
+                }
+            }
+            binding.playBtn.setOnClickListener {
+                if (videoUri != null) {
+                    (activity as ChatActivity).playVideo(binding, videoUri)
+                }
+            }
+            binding.downloadBtn.setOnClickListener {
+                (activity as ChatActivity).downloadVideoAndPlay(binding, message)
+            }
+        }
+        fun reset() {
+            binding.messageTv.isGone = true
+            binding.imageMessage.isGone = true
+            binding.videoCL.isGone = true
+            binding.playBtn.isGone = true
+            binding.downloadBtn.isVisible = false
+            binding.videoView.stopPlayback()
         }
     }
 

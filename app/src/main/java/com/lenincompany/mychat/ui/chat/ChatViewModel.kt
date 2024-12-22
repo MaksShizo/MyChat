@@ -1,19 +1,27 @@
 package com.lenincompany.mychat.ui.chat
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lenincompany.mychat.data.DataRepository
+import com.lenincompany.mychat.databinding.ItemOtherMessageBinding
+import com.lenincompany.mychat.databinding.ItemUserMessageBinding
 import com.lenincompany.mychat.models.base.MessageServer
 import com.lenincompany.mychat.models.chat.ChatUsers
 import com.lenincompany.mychat.models.chat.Message
 import com.lenincompany.mychat.models.chat.UsersPhoto
+import com.lenincompany.mychat.utils.VideoSaver
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -101,6 +109,56 @@ class ChatViewModel @Inject constructor(
                 val response = dataRepository.uploadChatFile(chatId, filePart)
                 if(response.url!=null)
                     _chatFile.postValue(response)
+            } catch (e: Exception) {
+                _errorMessage.postValue("Error uploading photo: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun downloadVideo(binding: ItemOtherMessageBinding, message: Message,context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val videoSaver = VideoSaver()
+                var videoUri: Uri? = null
+
+                videoSaver.downloadVideo(message.Content, context) { progress ->
+                    binding.progressBar.progress = progress
+                }
+
+                videoUri = videoSaver.getFileUriFromUrl(context, message.Content)
+
+                withContext(Dispatchers.Main) {
+                    binding.progressBar.isGone = true
+                    videoUri?.let {
+                        binding.videoView.setVideoURI(it)
+                        binding.playBtn.isVisible = true
+                    }
+                }
+            } catch (e: Exception) {
+                _errorMessage.postValue("Error uploading photo: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun downloadVideo(binding: ItemUserMessageBinding, message: Message, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val videoSaver = VideoSaver()
+                var videoUri: Uri? = null
+
+                videoSaver.downloadVideo(message.Content, context) { progress ->
+                    binding.progressBar.progress = progress
+                }
+
+                videoUri = videoSaver.getFileUriFromUrl(context, message.Content)
+
+                withContext(Dispatchers.Main) {
+                    binding.progressBar.isGone = true
+                    videoUri?.let {
+                        binding.videoView.setVideoURI(it)
+                        binding.playBtn.isVisible = true
+                    }
+                }
             } catch (e: Exception) {
                 _errorMessage.postValue("Error uploading photo: ${e.localizedMessage}")
             }

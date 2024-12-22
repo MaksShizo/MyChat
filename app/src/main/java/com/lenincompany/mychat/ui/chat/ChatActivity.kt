@@ -317,29 +317,10 @@ class ChatActivity : AppCompatActivity() {
         binding.videoView.start()
     }
 
-    ///Todo Вынести во ViewModel
     fun downloadVideoAndPlay(binding: ItemUserMessageBinding, message: Message) {
-        val videoSaver = VideoSaver()
-        var videoUri: Uri? = null
-
         binding.downloadBtn.isGone = true
         binding.progressBar.isVisible = true
-
-        CoroutineScope(Dispatchers.IO).launch {
-            videoSaver.downloadVideo(message.Content, baseContext) { progress ->
-                binding.progressBar.progress = progress
-            }
-
-            videoUri = videoSaver.getFileUriFromUrl(baseContext, message.Content)
-
-            withContext(Dispatchers.Main) {
-                binding.progressBar.isGone = true
-                videoUri?.let {
-                    binding.videoView.setVideoURI(it)
-                    binding.playBtn.isVisible = true
-                }
-            }
-        }
+        chatViewModel.downloadVideo(binding,message,baseContext)
     }
 
     fun playVideo(binding: ItemOtherMessageBinding, videoUri: Uri) {
@@ -348,29 +329,10 @@ class ChatActivity : AppCompatActivity() {
         binding.videoView.start()
     }
 
-    ///Todo Вынести во ViewModel
     fun downloadVideoAndPlay(binding: ItemOtherMessageBinding, message: Message) {
-        val videoSaver = VideoSaver()
-        var videoUri: Uri? = null
-
         binding.downloadBtn.isGone = true
         binding.progressBar.isVisible = true
-
-        CoroutineScope(Dispatchers.IO).launch {
-            videoSaver.downloadVideo(message.Content, baseContext) { progress ->
-                binding.progressBar.progress = progress
-            }
-
-            videoUri = videoSaver.getFileUriFromUrl(baseContext, message.Content)
-
-            withContext(Dispatchers.Main) {
-                binding.progressBar.isGone = true
-                videoUri?.let {
-                    binding.videoView.setVideoURI(it)
-                    binding.playBtn.isVisible = true
-                }
-            }
-        }
+        chatViewModel.downloadVideo(binding,message,baseContext)
     }
 
 }
