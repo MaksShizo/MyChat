@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
     id("org.jetbrains.kotlin.kapt") // Подключение kapt
     kotlin("plugin.serialization") version "1.9.10"
     id("com.google.dagger.hilt.android")
@@ -10,6 +11,7 @@ android {
     namespace = "com.lenincompany.mychat"
     compileSdk = 35
     buildFeatures {
+        compose = true
         viewBinding = true
     }
     defaultConfig {
@@ -19,9 +21,13 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
-
-
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.10"
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -38,6 +44,11 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
 
 }
 
@@ -52,6 +63,19 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.runtime.android)
+    implementation(libs.androidx.ui.tooling.preview.android)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    //compose
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,7 +90,12 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.circleimageview)
     implementation(libs.glide.v4142)
-    implementation(libs.logging.interceptor)// Interceptor для логирования
+    implementation(libs.logging.interceptor)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+    // Interceptor для логирования
     kapt(libs.compiler)
     //hilt
     implementation(libs.hilt.android)

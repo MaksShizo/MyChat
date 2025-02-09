@@ -58,6 +58,9 @@ class ChatsFragment : Fragment() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             chatsViewModel.loadChats(sharedPrefs.getUserId())
         }
+        binding.newChatButton.setOnClickListener({
+
+        })
         chatsViewModel.loadChats(sharedPrefs.getUserId())
     }
 
